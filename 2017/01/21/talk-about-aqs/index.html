@@ -11,18 +11,18 @@
     
 
     
-    <meta name="description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。1111">
+    <meta name="description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="AQS漫谈">
 <meta property="og:url" content="http://marvinsworld.github.io/2017/01/21/talk-about-aqs/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。1111">
-<meta property="og:image" content="http://marvinsworld.github.io/img/aqs-puzzle.png">
-<meta property="og:updated_time" content="2017-03-10T06:30:37.000Z">
+<meta property="og:description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/aqs-puzzle-piece.png">
+<meta property="og:updated_time" content="2017-03-10T14:34:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AQS漫谈">
-<meta name="twitter:description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。1111">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/aqs-puzzle.png">
+<meta name="twitter:description" content="AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/aqs-puzzle-piece.png">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -106,7 +106,7 @@
 		
 		</div>
 		
-		<p><img src="/img/aqs-puzzle.png" width="300" class="img-topic"><br>AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。1111<br><a id="more"></a></p>
+		<p><img src="/img/aqs-puzzle-piece.png" width="300" class="img-topic"><br>AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。<br><a id="more"></a></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -244,47 +244,7 @@
 			
 		
 			
-				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
 			
 		
 			
@@ -296,19 +256,59 @@
 			
 		
 			
-				<li><a href="/tags/问题/" title="问题">问题<sup>1</sup></a></li>
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/思路/" title="思路">思路<sup>1</sup></a></li>
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/root/" title="root">root<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/上下文切换/" title="上下文切换">上下文切换<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/效率/" title="效率">效率<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/线程数/" title="线程数">线程数<sup>1</sup></a></li>
 			
 		
 		</ul>
