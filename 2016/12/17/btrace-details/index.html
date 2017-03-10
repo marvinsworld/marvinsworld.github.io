@@ -1,0 +1,616 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>深入Btrace | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入Btrace">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/12/17/btrace-details/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/btrace_dig.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/btrace-jvmti.gif">
+<meta property="og:image" content="http://marvinsworld.github.io/img/qrcode.jpg">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入Btrace">
+<meta name="twitter:description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/btrace_dig.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/12/17/btrace-details/" title="深入Btrace" itemprop="url">深入Btrace</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-12-17T12:51:55.000Z" itemprop="datePublished"> 发表于 2016-12-17</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#术语"><span class="toc-number">2.</span> <span class="toc-text">术语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关键词"><span class="toc-number">3.</span> <span class="toc-text">关键词</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#细节"><span class="toc-number">4.</span> <span class="toc-text">细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一些理解"><span class="toc-number">5.</span> <span class="toc-text">一些理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/btrace_dig.png" width="300" class="img-topic"><br>虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。<br><a id="more"></a></p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><blockquote>
+<p>BTrace是基于动态字节码修改技术(Hotswap)来实现运行时java程序的跟踪和替换。大体的原理可以用下面的公式描述：Client(Java compile api + attach api) + Agent（脚本解析引擎 + ASM + JDK6 Instumentation） + Socket</p>
+</blockquote>
+<p><img src="/img/btrace-jvmti.gif" alt="Java 线程监控模型" title="Java 线程监控模型"></p>
+<h2 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h2><p><strong>探测点（Probe Point）</strong>：希望BTrace 跟踪脚本执行的<strong>位置</strong>和<strong>时机</strong>，比如进入某个类的某个方法时触发脚本的执行。</p>
+<p><strong>跟踪动作/动作(Trace Actions or Actions)</strong>：即触发后运行的Btrace 跟踪脚本。</p>
+<p><strong>处理方法 (Action Methods)</strong>：BTrace跟踪脚本需要放在一个类的静态方法中，这个静态方法称为处理方法。</p>
+<h2 id="关键词"><a href="#关键词" class="headerlink" title="关键词"></a>关键词</h2><p><code>@OnMethod(①clazz = &quot;com.ewan.test.btrace.Calculator&quot;, ②method = &quot;add&quot;, ③location = @Location(④ Kind.RETURN))</code></p>
+<p>①处clazz表示跟踪的目标类，可以指定全限定类名，也可以是正则表达式。（例如: <code>&quot;/com\\.ewan\\..+/&quot;</code>，由于<code>.</code>是正则表达式中的特殊字符，如果想表达包层级分隔的含义，需要用<code>\\</code>来转义，<code>.+</code>表示的含义是至少有一个字符，因此这个简单的正则表达式的含义是com.ewan下所有子包中的所有类）</p>
+<p>②处method表示目标类中的方法，组合①和②才是术语中的<strong>探测点</strong>的含义，这两处都可以使用正则表达式来跟踪多个类的多个方法。</p>
+<p>③处location表示BTrace脚本触发的时机。</p>
+<p>④ 处Kind定义触发的方式。在Kind中都已经定义好触发的时机，常用的有ENTRY（进入方法时，不写Location默认是ENTRY），RETURN（方法正常执行完成返回时触发），Throw（异常抛出），Catch（异常被捕获），Error（异常没被捕获而被抛出函数之外，主要用于对某些异常情况的跟踪）。</p>
+<h2 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h2><ol>
+<li>① clazz和② method对应的值只有两种形式，完全匹配和正则表达式。使用完全匹配时，不需要特殊处理；使用正则表达式时，需要把正则放在两个正斜杠<code>/</code>的中间，比如<code>&quot;/com\\.ewan\\..+/&quot;</code>。</li>
+<li>不要盲目的跟踪过多的类和方法，一方面不容易定位问题，另一方面性能会非常慢。不能为了解决一个问题，而引入了新的问题。</li>
+<li>特殊方法定位。构造函数使用<code>method=&quot;&lt;init&gt;&quot;</code></li>
+<li>跟踪接口：<code>clazz=&quot;+java.util.Map&quot;, method=&quot;put&quot;</code></li>
+<li>跟踪注解：<code>clazz=&quot;@javax.jws.WebService&quot;,method=&quot;@javax.jws.WebMethod&quot;</code></li>
+</ol>
+<h2 id="一些理解"><a href="#一些理解" class="headerlink" title="一些理解"></a>一些理解</h2><p>BTrace的官方文档过于简单，虽然被誉为神器，不过很多技巧需要在实践过程中摸索总结。BTrace擅长的地方是通过问题呈现出来的现象（比如内存使用率居高不下、接口响应时间过长），结合排查问题经验，一步一步的缩小问题的怀疑范围，最终定位问题。</p>
+<p>这里说说我对BTrace使用过程中浅显的理解，有理解不对的地方还请指正。</p>
+<ol>
+<li>@TLS用于多个跟踪脚本之间的通信，通过定义 ThreadLocal的变量来共享，而很多文章中举的例子都是为查看某个方法的执行时间，Kind.RETURN和@Duration组合使用就很简单的实现了，不需要舍近求远。</li>
+<li>Kind.CALL关注的探测点内部的逻辑，这与其他要区分清楚，另外还需要结合@Location内的clazz，method和跟踪脚本的变量参数一块使用，比较复杂，有时间详细说明一下。</li>
+</ol>
+<p>我是葛一凡，希望对你有帮助。<br><img src="/img/qrcode.jpg" alt="微信公众号" title="微信公众号"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://www.rowkey.me/blog/2016/09/20/btrace/" target="_blank" rel="external">BTrace原理浅析</a> </li>
+<li><a href="https://github.com/btraceio/btrace" target="_blank" rel="external">官网</a></li>
+<li><a href="https://kenai.com/projects/btrace/pages/UserGuide" target="_blank" rel="external">官方UserGuide1.2版</a></li>
+<li><a href="http://calvin1978.blogcn.com/articles/btrace1.html" target="_blank" rel="external">Btrace入门到熟练小工完全指南</a></li>
+<li><a href="http://blog.csdn.net/wildandfly/article/details/21107661" target="_blank" rel="external">BTrace简介及使用</a></li>
+<li><a href="http://www.cnblogs.com/mumuxinfei/p/3944823.html" target="_blank" rel="external">Java BTrace实战(1)–BTrace的入门和使用</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/java/j-lo-jvmti/" target="_blank" rel="external">基于 JVMTI 实现 Java 线程的监控</a></li>
+<li><a href="http://www.jianshu.com/p/dbb3a8b5c92f" target="_blank" rel="external">如何在生产环境使用Btrace进行调试</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/实战性能优化/">实战性能优化</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/利器/">利器</a><a href="/tags/堆栈/">堆栈</a><a href="/tags/Btrace/">Btrace</a><a href="/tags/细节/">细节</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/12/17/btrace-details/" data-title="深入Btrace | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/12/24/find-bug-online-skills/" title="排查线上性能问题的套路">
+  <strong>上一篇：</strong><br/>
+  <span>
+  排查线上性能问题的套路</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/12/14/btrace-manual/"  title="Btrace入门">
+ <strong>下一篇：</strong><br/> 
+ <span>Btrace入门
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/12/17/btrace-details/" data-title="深入Btrace" data-url="http://marvinsworld.github.io/2016/12/17/btrace-details/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-number">1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#术语"><span class="toc-number">2.</span> <span class="toc-text">术语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关键词"><span class="toc-number">3.</span> <span class="toc-text">关键词</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#细节"><span class="toc-number">4.</span> <span class="toc-text">细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一些理解"><span class="toc-number">5.</span> <span class="toc-text">一些理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

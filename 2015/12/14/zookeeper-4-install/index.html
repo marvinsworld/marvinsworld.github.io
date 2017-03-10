@@ -1,0 +1,610 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>ZooKeeper怎么玩之四：ZK的部署 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZooKeeper怎么玩之四：ZK的部署">
+<meta property="og:url" content="http://marvinsworld.github.io/2015/12/14/zookeeper-4-install/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.">
+<meta property="og:image" content="http://marvinsworld.github.io/img/zk_install.png">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ZooKeeper怎么玩之四：ZK的部署">
+<meta name="twitter:description" content="ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/zk_install.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/12/14/zookeeper-4-install/" title="ZooKeeper怎么玩之四：ZK的部署" itemprop="url">ZooKeeper怎么玩之四：ZK的部署</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2015-12-14T13:18:28.000Z" itemprop="datePublished"> 发表于 2015-12-14</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#集群部署"><span class="toc-number">1.</span> <span class="toc-text">集群部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么推荐部署ZooKeeper的机器是奇数呢"><span class="toc-number">2.</span> <span class="toc-text">为什么推荐部署ZooKeeper的机器是奇数呢</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#伪集群部署"><span class="toc-number">3.</span> <span class="toc-text">伪集群部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#系统要求"><span class="toc-number">4.</span> <span class="toc-text">系统要求</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#单机部署"><span class="toc-number">5.</span> <span class="toc-text">单机部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结束"><span class="toc-number">6.</span> <span class="toc-text">结束</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/zk_install.png" width="250" height="250" class="img-topic"><br>ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.<br><a id="more"></a></p>
+<h1 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h1><p>首先需要准备<strong>至少三台</strong>服务器来搭建ZooKeeper集群,为什么至少三台服务器呢?参见<a href="#为什么推荐部署ZooKeeper的机器是奇数呢" title="为什么">为什么推荐部署ZooKeeper的机器是奇数呢</a>.</p>
+<ol>
+<li>准备java运行环境,安装JDK6或更高版本.(因为ZooKeeper是由java语言编写的)</li>
+<li>下载ZooKeeper安装包.推荐使用stable稳定版本,比如Release 3.4.6,下载后解压一个目录中,比如/usr/local/目录下.</li>
+<li><p>修改配置文件zoo.cfg.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">tickTime=<span class="number">2000</span></div><div class="line">initLimit=<span class="number">10</span></div><div class="line">syncLimit=<span class="number">5</span></div><div class="line">dataDir=/data/zookeeper</div><div class="line">clientPort=<span class="number">2181</span></div><div class="line">server.1=zoo1:<span class="number">2888</span>:<span class="number">3888</span></div><div class="line">server.2=zoo2:<span class="number">2888</span>:<span class="number">3888</span></div><div class="line">server.3=zoo3:<span class="number">2888</span>:<span class="number">3888</span></div></pre></td></tr></table></figure>
+<p> 该配置所在的位置是<strong>%ZK_HOME%/conf</strong>目录下,参数不做详细解释.不过需要注意的是:</p>
+<ul>
+<li>第4行,dataDir属性强烈不推荐使用默认的tmp,在使用过程中由于操作系统会清空tmp目录,造成一些奇特现象.</li>
+<li>第5行,clientPort是ZooKeeper客户端端口.</li>
+<li>第6行,server.id=host:port:port中的id是唯一的,用来标识机器在集群中序号,范围在1~255,第一个port是从follower节点连接到leader节点的端口;第二个port是进行leader选举的端口.</li>
+</ul>
+</li>
+<li>创建myid文件.<br> 在配置文件dataDir项所配置目录下创建名为myid的文件,并在该文件第一行写上该机器在集群中对应的序号,比如服务器IP是zoo1的,在对应的myid文件中写上1,标识当前服务器对应的序号.</li>
+<li>重复步骤3,4的配置到其他服务器上.</li>
+<li><p>启动服务器<br> 到%ZK_HOME%/bin目录下,使用<code>zkServer.sh start</code>启动ZooKeeper,见到如下内容则标识ZooKeeper启动成功.</p>
+<pre><code class="java">JMX enabled by <span class="keyword">default</span>
+Using config: /usr/local/zk/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+</code></pre>
+<p> 启动客户端的命令是:</p>
+<pre><code class="java">zkCli.sh
+</code></pre>
+</li>
+</ol>
+<h1 id="为什么推荐部署ZooKeeper的机器是奇数呢"><a href="#为什么推荐部署ZooKeeper的机器是奇数呢" class="headerlink" title="为什么推荐部署ZooKeeper的机器是奇数呢"></a>为什么推荐部署ZooKeeper的机器是奇数呢</h1><p>官网强烈建议部署zookeeper机器的数量是奇数的,原因在于ZooKeeper的选举机制,选票超过半数的机器才有可能成为Leader,因此当整个集群中只有两台服务器或者整个集群超过半数的机器都挂掉时,是无法选举出Leader的.其实这是一个集群资源利用最大化的问题,例如集群中有三个节点,允许挂掉一个节点,这时还剩余两个节点,超过半数;而集群中有四个节点时,最多也只能挂掉一个节点,因为如果再挂掉一个,整个集群就剩下两个节点,无法满足超过集群数的半数这个条件.综合来看两者的容灾能力是一样的.so,你懂的</p>
+<h1 id="伪集群部署"><a href="#伪集群部署" class="headerlink" title="伪集群部署"></a>伪集群部署</h1><p>学习研究时更多的推荐大家使用伪集群模式,将需要多个硬件的要求改成在一台机器上.实现起来也很简单,把ZooKeeper的压缩包解压到三个不同的目录,将上面的配置文件,只修改server启动端口和client监听端口,ip不变.即可</p>
+<h1 id="系统要求"><a href="#系统要求" class="headerlink" title="系统要求"></a>系统要求</h1><p>操作系统上,ZooKeeper对于主流的操作系统都是支持的,比如GNU/Linux,Sun Solaris,FreeBSD,MacOSX,Win32,Win64等(好像主流的操作系统也就这些了呵呵).软件上,ZooKeeper是由java语言编写的,需要至少<strong>使用JDK6或者更高的版本</strong>.FreeBSD操作系统的话,需要openjdk7.</p>
+<p>ZooKeeper的定位就是集群,因此在学习研究推荐使用集群部署的方式,不过考虑到平时开发环境中服务器资源有限,也可以使用单机部署,学习更加方便.</p>
+<h1 id="单机部署"><a href="#单机部署" class="headerlink" title="单机部署"></a>单机部署</h1><p>单机部署更是简单,只需要把集群部署中第3步的配置修改如下配置,启动即可,so easy!</p>
+<pre><code class="java">tickTime=<span class="number">2000</span>
+initLimit=<span class="number">10</span>
+syncLimit=<span class="number">5</span>
+dataDir=/data/zookeeper
+clientPort=<span class="number">2181</span>
+</code></pre>
+<h1 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h1><p>总体来说,zookeeper的部署很简单,在研究学习过程中,还是推荐大家使用伪集群模式部署.在生产环境使用zookeeper时还需要根据硬件条件调整zookeeper的相应配置</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/ZooKeeper怎么玩/">ZooKeeper怎么玩</a>
+</div>
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2015/12/14/zookeeper-4-install/" data-title="ZooKeeper怎么玩之四：ZK的部署 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/12/30/zookeeper-5-datamodel/" title="ZooKeeper怎么玩之五：数据模型">
+  <strong>上一篇：</strong><br/>
+  <span>
+  ZooKeeper怎么玩之五：数据模型</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/10/11/ali-interview/"  title="面试感悟">
+ <strong>下一篇：</strong><br/> 
+ <span>面试感悟
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/12/14/zookeeper-4-install/" data-title="ZooKeeper怎么玩之四：ZK的部署" data-url="http://marvinsworld.github.io/2015/12/14/zookeeper-4-install/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#集群部署"><span class="toc-number">1.</span> <span class="toc-text">集群部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么推荐部署ZooKeeper的机器是奇数呢"><span class="toc-number">2.</span> <span class="toc-text">为什么推荐部署ZooKeeper的机器是奇数呢</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#伪集群部署"><span class="toc-number">3.</span> <span class="toc-text">伪集群部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#系统要求"><span class="toc-number">4.</span> <span class="toc-text">系统要求</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#单机部署"><span class="toc-number">5.</span> <span class="toc-text">单机部署</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结束"><span class="toc-number">6.</span> <span class="toc-text">结束</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

@@ -1,0 +1,581 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>ZooKeeper怎么玩之五：数据模型 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="ZooKeeper没有使用原语的方式,而是引入了操作粒度更细小的数据节点的概念:Znode,通过暴露操作这些Znode的API,使用者可以更方便的来实现更加适合自己的原语,而不是仅仅使用经过进一步封装后的同步原语,例如分布式锁.这就是事物的两面性,封装提供了便捷性,失去了灵活性.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZooKeeper怎么玩之五：数据模型">
+<meta property="og:url" content="http://marvinsworld.github.io/2015/12/30/zookeeper-5-datamodel/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="ZooKeeper没有使用原语的方式,而是引入了操作粒度更细小的数据节点的概念:Znode,通过暴露操作这些Znode的API,使用者可以更方便的来实现更加适合自己的原语,而不是仅仅使用经过进一步封装后的同步原语,例如分布式锁.这就是事物的两面性,封装提供了便捷性,失去了灵活性.">
+<meta property="og:image" content="http://marvinsworld.github.io/img/zk_node.png">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ZooKeeper怎么玩之五：数据模型">
+<meta name="twitter:description" content="ZooKeeper没有使用原语的方式,而是引入了操作粒度更细小的数据节点的概念:Znode,通过暴露操作这些Znode的API,使用者可以更方便的来实现更加适合自己的原语,而不是仅仅使用经过进一步封装后的同步原语,例如分布式锁.这就是事物的两面性,封装提供了便捷性,失去了灵活性.">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/zk_node.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/12/30/zookeeper-5-datamodel/" title="ZooKeeper怎么玩之五：数据模型" itemprop="url">ZooKeeper怎么玩之五：数据模型</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2015-12-30T14:16:07.000Z" itemprop="datePublished"> 发表于 2015-12-30</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#命名空间"><span class="toc-number">1.</span> <span class="toc-text">命名空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#zxid"><span class="toc-number">2.</span> <span class="toc-text">zxid</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#版本"><span class="toc-number">3.</span> <span class="toc-text">版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#节点类型"><span class="toc-number">4.</span> <span class="toc-text">节点类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#优势"><span class="toc-number">5.</span> <span class="toc-text">优势</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/zk_node.png" width="500" height="500" class="img-topic"><br>ZooKeeper没有使用原语的方式,而是引入了操作粒度更细小的数据节点的概念:Znode,通过暴露操作这些Znode的API,使用者可以更方便的来实现更加适合自己的原语,而不是仅仅使用经过进一步封装后的同步原语,例如分布式锁.这就是事物的两面性,封装提供了便捷性,失去了灵活性.<br><a id="more"></a></p>
+<h1 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h1><p>ZooKeeper设计了一个有层级的命名空间(Hierarchical Namespace),这个结构来源是数据结构中树的概念,这样就使得ZooKeeper根据命名空间定位节点时的效率大幅提升.</p>
+<p>命名空间和标准的文件系统非常相似,不过Znode同时有目录和文件两个特征.同时像目录一样维护着路径这样的标识,也维护着像文件一样维护着数据、元信息、ACL、时间戳等数据结构.Znode的访问路径是绝对路径,必须以斜线(/)开头,表示根,节点和其子节点之间同样使用斜线(/)进行分割.因此每个Znode节点都是通过唯一的路径来标识和访问.</p>
+<p>Znode有三部分组成:数据信息,状态信息和子节点.<br>其中,节点数据以字节数组形式存储,被设计为严格限制在1M以内,而实际使用中应该远小于该值.这源自ZooKeeper设计的目的:ZooKeeper并不是设计专门存储数据的,而是用来维护和监控存储数据的状态变化,而这些数据都都在内存中,考虑到内存的限制,数据节点的存储的数据是不能太大的,因此如果想把ZooKeeper用来持久化大量数据,推荐使用Redis吧.</p>
+<p>Znode的状态信息中使用了两种类型的来共同表示:zxid和版本号</p>
+<h1 id="zxid"><a href="#zxid" class="headerlink" title="zxid"></a>zxid</h1><p>是ZooKeeper的事务ID,每次Znode变更时,都会会产生一个唯一的zxid,并且是全局有序的,对于同一个节点,序号越大表示变更的时间约晚.zxid是64位数字,高32位表示选举的zxid,低32位表示自增计数(待完善)</p>
+<h1 id="版本"><a href="#版本" class="headerlink" title="版本"></a>版本</h1><p>Znode有三个版本字段,verion,cversion,aversion.version是Znode的版本号,使用乐观锁的思想,每次变动都会自增version,而cversion是子节点的版本号,</p>
+<h1 id="节点类型"><a href="#节点类型" class="headerlink" title="节点类型"></a>节点类型</h1><p>ZooKeeper的节点分为持久节点(persistent),临时节点(ephemeral)两类,还有一种分类是根据是否有序分的:顺序节点,无序节点,这样就会组合成四种.如何确定是否有序还是无序?<br>Stat类的ephemeralOwner标记节点类型</p>
+<h1 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h1><p> 高性能,有序</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/ZooKeeper怎么玩/">ZooKeeper怎么玩</a>
+</div>
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2015/12/30/zookeeper-5-datamodel/" data-title="ZooKeeper怎么玩之五：数据模型 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/04/12/zookeeper-6-command/" title="ZooKeeper怎么玩之六：常用命令">
+  <strong>上一篇：</strong><br/>
+  <span>
+  ZooKeeper怎么玩之六：常用命令</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/12/14/zookeeper-4-install/"  title="ZooKeeper怎么玩之四：ZK的部署">
+ <strong>下一篇：</strong><br/> 
+ <span>ZooKeeper怎么玩之四：ZK的部署
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/12/30/zookeeper-5-datamodel/" data-title="ZooKeeper怎么玩之五：数据模型" data-url="http://marvinsworld.github.io/2015/12/30/zookeeper-5-datamodel/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#命名空间"><span class="toc-number">1.</span> <span class="toc-text">命名空间</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#zxid"><span class="toc-number">2.</span> <span class="toc-text">zxid</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#版本"><span class="toc-number">3.</span> <span class="toc-text">版本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#节点类型"><span class="toc-number">4.</span> <span class="toc-text">节点类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#优势"><span class="toc-number">5.</span> <span class="toc-text">优势</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

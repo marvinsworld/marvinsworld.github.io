@@ -1,0 +1,597 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>主内存和工作内存 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="主内存（Main Memory）和工作内存（Working Memory）是为了形象理解缓存和CPU级别缓存而创造出来的一组概念。Java内存模型（JMM）中通过主内存和工作内存来屏蔽具体硬件和操作系统的差别，JMM规定主内存用于存储所有变量，每个线程还有自己的工作内存，线程的工作内存中保存了被该线程使用到的主内存变量的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直">
+<meta property="og:type" content="article">
+<meta property="og:title" content="主内存和工作内存">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/11/17/main-memory-and-working-memory/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="主内存（Main Memory）和工作内存（Working Memory）是为了形象理解缓存和CPU级别缓存而创造出来的一组概念。Java内存模型（JMM）中通过主内存和工作内存来屏蔽具体硬件和操作系统的差别，JMM规定主内存用于存储所有变量，每个线程还有自己的工作内存，线程的工作内存中保存了被该线程使用到的主内存变量的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直">
+<meta property="og:image" content="http://marvinsworld.github.io/img/cpu-cache-memory.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/qrcode.jpg">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="主内存和工作内存">
+<meta name="twitter:description" content="主内存（Main Memory）和工作内存（Working Memory）是为了形象理解缓存和CPU级别缓存而创造出来的一组概念。Java内存模型（JMM）中通过主内存和工作内存来屏蔽具体硬件和操作系统的差别，JMM规定主内存用于存储所有变量，每个线程还有自己的工作内存，线程的工作内存中保存了被该线程使用到的主内存变量的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/cpu-cache-memory.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/11/17/main-memory-and-working-memory/" title="主内存和工作内存" itemprop="url">主内存和工作内存</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-11-17T14:28:26.000Z" itemprop="datePublished"> 发表于 2016-11-17</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU与内存"><span class="toc-number">1.</span> <span class="toc-text">CPU与内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行"><span class="toc-number">2.</span> <span class="toc-text">缓存行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MESI协议"><span class="toc-number">3.</span> <span class="toc-text">MESI协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/cpu-cache-memory.png" width="300" class="img-topic"><br>主内存（Main Memory）和工作内存（Working Memory）是为了形象理解缓存和CPU级别缓存而创造出来的一组概念。Java内存模型（JMM）中通过主内存和工作内存来屏蔽具体硬件和操作系统的差别，JMM规定主内存用于存储所有变量，每个线程还有自己的工作内存，线程的工作内存中保存了被该线程使用到的主内存变量的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直接读取主内存中的变量。<br><a id="more"></a></p>
+<h2 id="CPU与内存"><a href="#CPU与内存" class="headerlink" title="CPU与内存"></a>CPU与内存</h2><p>大家都知道CPU的处理速度和内存的访问速度相差很大，比如Intel Sandy Bridge中，寄存器的一个处理周期小于1ns，而内存的访问速度大于在65ns，这就是“木桶原理”：一只水桶能装多少水取决于它最短的那块木板。除了提升内存的访问速度外（硬件成本高），CPU Cache的设计想通过提升读取数据的命中率，不需要从内存或磁盘上查找，来提升整体性能。设计Cache基于程序的局部性(Locality)<br>，即指程序在执行时呈现出局部性规律，即在一段时间内，整个程序的执行仅限于程序中的某一部分。相应地，执行所访问的存储空间也局限于某个内存区域。</p>
+<p>CPU寄存器，L1、L2、L3cache，内存，磁盘，远程存储（网络），从左向右访问速度依次下降而存储容量依次提高，价格依次下降，这是存储层次的核心思想。类似印度游戏汉诺塔，从下往上依次增大。</p>
+<h2 id="缓存行"><a href="#缓存行" class="headerlink" title="缓存行"></a>缓存行</h2><p>缓存行（Cache Line）是Cache访问的最小单元。CPU Cache与内存交换数据不是以字节为单位的，而是以块（Block）为单位，通常是32字节或64字节（根据操作系统的）。缓存行设计的目的是为了减少CPU Cache与内存交换数据的次数。 </p>
+<h2 id="MESI协议"><a href="#MESI协议" class="headerlink" title="MESI协议"></a>MESI协议</h2><p>CPU Cache的设计虽然可以增加命中率，但是由于Cache的容量远远小于内存，因此难免会出现缓存不命中（Cache Miss）的情况。发生Cache Miss后，Cache会从下一层缓存中读取，如果当前缓存已满，会通过淘汰机制（例如LRU）覆盖被淘汰的数据块。</p>
+<p>TODO</p>
+<p>我是葛一凡，希望对你有帮助。<br><img src="/img/qrcode.jpg" alt="微信公众号" title="微信公众号"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://yq.aliyun.com/articles/8061" target="_blank" rel="external">高性能服务端系列 – 处理器篇</a></li>
+<li><a href="http://geek.csdn.net/news/detail/114619" target="_blank" rel="external">Java专家系列：CPU Cache与高性能编程</a></li>
+<li><a href="http://blog.csdn.net/reliveIT/article/details/50450136" target="_blank" rel="external">【并发编程】CPU cache结构和缓存一致性（MESI协议）</a></li>
+<li><a href="https://yq.aliyun.com/articles/62865?utm_campaign=wenzhang&amp;utm_medium=article&amp;utm_source=QQ-qun&amp;utm_content=m_7536" target="_blank" rel="external">Java中的伪共享以及应对方案</a></li>
+<li><a href="http://www.parallellabs.com/2010/03/06/why-should-programmer-care-about-sequential-consistency-rather-than-cache-coherence/" target="_blank" rel="external">为什么程序员需要关心顺序一致性</a></li>
+<li><a href="http://cenalulu.github.io/linux/all-about-cpu-cache/" target="_blank" rel="external">关于CPU Cache – 程序猿需要知道的那些事</a></li>
+<li><a href="http://www.infoq.com/cn/articles/cache-coherency-primer" target="_blank" rel="external">缓存一致性（Cache Coherency）入门</a></li>
+<li><a href="http://novoland.github.io/c%E5%92%8Cos/2014/07/26/CPU%20Cache%20%E4%B8%8E%20%E5%AD%98%E5%82%A8%E5%99%A8%E5%B1%82%E6%AC%A1%E7%BB%93%E6%9E%84.html" target="_blank" rel="external">CPU Cache &amp; False Sharing &amp; 存储器层次结构</a></li>
+<li><a href="http://ifeve.com/cpu-cache-flushing-fallacy-cn/" target="_blank" rel="external">CPU缓存刷新的误解</a></li>
+<li><a href="https://yq.aliyun.com/articles/62865?utm_campaign=wenzhang&amp;utm_medium=article&amp;utm_source=QQ-qun&amp;utm_content=m_7536" target="_blank" rel="external">Java中的伪共享以及应对方案</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/主内存/">主内存</a><a href="/tags/工作内存/">工作内存</a><a href="/tags/共享变量/">共享变量</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/11/17/main-memory-and-working-memory/" data-title="主内存和工作内存 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/11/30/volatile-explain/" title="volatile语义">
+  <strong>上一篇：</strong><br/>
+  <span>
+  volatile语义</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/11/06/inside-synchronized/"  title="重新认识synchronized（下）">
+ <strong>下一篇：</strong><br/> 
+ <span>重新认识synchronized（下）
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/11/17/main-memory-and-working-memory/" data-title="主内存和工作内存" data-url="http://marvinsworld.github.io/2016/11/17/main-memory-and-working-memory/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU与内存"><span class="toc-number">1.</span> <span class="toc-text">CPU与内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行"><span class="toc-number">2.</span> <span class="toc-text">缓存行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MESI协议"><span class="toc-number">3.</span> <span class="toc-text">MESI协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

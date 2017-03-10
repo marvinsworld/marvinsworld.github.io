@@ -1,0 +1,601 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>volatile语义 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="volatile语义">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/11/30/volatile-explain/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/volatile-visible.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/volatile-jmm.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/qrcode.jpg">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="volatile语义">
+<meta name="twitter:description" content="volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/volatile-visible.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/11/30/volatile-explain/" title="volatile语义" itemprop="url">volatile语义</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-11-30T08:03:08.000Z" itemprop="datePublished"> 发表于 2016-11-30</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要volatile"><span class="toc-number">1.</span> <span class="toc-text">为什么需要volatile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可见性"><span class="toc-number">2.</span> <span class="toc-text">可见性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原子性"><span class="toc-number">3.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/volatile-visible.png" width="300" class="img-topic"><br>volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。<br><a id="more"></a></p>
+<h2 id="为什么需要volatile"><a href="#为什么需要volatile" class="headerlink" title="为什么需要volatile"></a>为什么需要volatile</h2><p>Java内存模型中抽象、简化了计算机物理设备，分成工作内存和主内存，线程有各自的工作内存，却共享主内存。如果要把Java内存模型与物理设备映射起来的话，L1，L2 Cache可以视为工作内存，而L3 Cache视为主内存。线程执行指令时，会优先选择距离 CPU 较近的位置的工作内存中使用，而不会从读写速度较慢的主内存中，我称之为“就近原则”。当线程指令执行完后，赋值给工作内存，如果不回写到主内存，或者通知其他线程，其他线程是无法知晓变量已经修改，仍然会使用曾经缓存在工作内存中的变量，这就造成了缓存不一致的问题，Java使用volatile解决这种问题。<strong>volatile保证指令赋值完后的变量立即同步回主内存中，声明并通知其他线程当前赋值的变量已经失效，其他线程在下次使用时会放弃工作内存中变量，使用主内存中的变量。</strong>这样就完成了线程间对于volatile修饰的变量的通信。</p>
+<h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><p>执行引擎只与工作内存交互，再有工作内存与主内存交互。站在执行引擎的角度，与工作内存操作完成即表示指令执行完，但是什么时候工作内存会将结果刷新回主内存却不可预测。Java线程间的通信是通过共享内存的方式，线程A如果想通知其他所有线程（线程B，线程C）对于变量f的变化情况，需要满足两点：</p>
+<ol>
+<li>将变量回写到主内存中</li>
+<li>执行引擎读取时强制从主内存中加载<br>在增加了增加了L1、L2 Cache之后，CPU何时将变量从独享缓存刷新会共享内存，独享缓存是否从共享内存加载变量，时间上都是不可确定的，这就造成了缓存不一致的问题。</li>
+</ol>
+<p>可见性的语义是线程对变量更新操作后，其他线程是可以获知变量的变更情况。<br><img src="/img/volatile-jmm.png" alt="工作内存和主内存关系" title="工作内存和主内存关系"></p>
+<h2 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h2><p>原子操作是一个或多个<strong>不可中断</strong>的操作，要么一次性完全执行完毕，要么就不执行，最终状态不存在有些操作执行完，有些操作没有执行，在外部看来是不可分割的整体（比如化学中的原子，当然原子也是可以再分割的，不过站在分子层面，原子是最小的不可分割的），原子操作关注的是不被线程调度器中断的操作。</p>
+<p>原子性操作是不会出现线程交替执行的情况，如果出现线程交替，则说明操作被线程调度器中断。在Java内存模型中，原子性保证你获取的变量要么是初始值，要么是被某一个线程写入的值，而不会是有多个线程同一时间写入而产生的混乱结果，long或double类型除外（因为变量的前32位可能由一个线程写入，后32位由另一个不同的线程写入），不过加上volatile修饰后的long 和double也具有原子性。</p>
+<p>注意：volatile关注可见性，而与原子性没有关系。volatile关注点在于从工作内存刷新回主内存，而原子操作关注的是否不被打断。原子和同步目的都是让不同线程可以<strong>安全地访问</strong>共享变量的两种处理方式，避免造成内存一致性错误。</p>
+<p>我是葛一凡，希望对你有帮助。<br><img src="/img/qrcode.jpg" alt="微信公众号" title="微信公众号"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://ifeve.com/volatile/" target="_blank" rel="external">聊聊并发（一）深入分析Volatile的实现原理</a></li>
+<li><a href="http://www.infoq.com/cn/articles/atomic-operation" target="_blank" rel="external">聊聊并发（五）——原子操作的实现原理</a></li>
+<li><a href="http://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html" target="_blank" rel="external">Java Language Specification</a></li>
+<li><a href="http://lucumt.info/posts/java-volatile-keyword/" target="_blank" rel="external">Java Volatile 关键字详解</a></li>
+<li><a href="http://www.cnblogs.com/pingyuyue/archive/2012/02/20/2360596.html" target="_blank" rel="external">从缓存行出发理解volatile变量、伪共享False sharing、disruptor</a></li>
+<li><a href="http://www.cnblogs.com/dolphin0520/p/3920373.html" target="_blank" rel="external">Java并发编程：volatile关键字解析</a></li>
+<li><a href="https://yq.aliyun.com/articles/47316?spm=5176.100240.searchblog.28.qOvfNz" target="_blank" rel="external">Java 编程要点之并发（Concurrency）详解</a></li>
+<li><a href="http://www.jianshu.com/p/76a3648f0a9f" target="_blank" rel="external">Java 并发编程(1): Java 内存模型(JMM)</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/同步/">同步</a><a href="/tags/主内存/">主内存</a><a href="/tags/工作内存/">工作内存</a><a href="/tags/共享变量/">共享变量</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/11/30/volatile-explain/" data-title="volatile语义 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/12/04/more-flexible-lock/" title="更加灵活的Lock">
+  <strong>上一篇：</strong><br/>
+  <span>
+  更加灵活的Lock</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/11/17/main-memory-and-working-memory/"  title="主内存和工作内存">
+ <strong>下一篇：</strong><br/> 
+ <span>主内存和工作内存
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/11/30/volatile-explain/" data-title="volatile语义" data-url="http://marvinsworld.github.io/2016/11/30/volatile-explain/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要volatile"><span class="toc-number">1.</span> <span class="toc-text">为什么需要volatile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可见性"><span class="toc-number">2.</span> <span class="toc-text">可见性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原子性"><span class="toc-number">3.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

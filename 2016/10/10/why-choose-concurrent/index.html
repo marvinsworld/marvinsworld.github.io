@@ -1,0 +1,602 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>为什么我们要考虑并发 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="“很显然嘛，并发可以提升效率”
+我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么我们要考虑并发">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/10/10/why-choose-concurrent/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="“很显然嘛，并发可以提升效率”
+我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/cpu.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/cpu-context-switch.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/context-switch.png">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为什么我们要考虑并发">
+<meta name="twitter:description" content="“很显然嘛，并发可以提升效率”
+我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/cpu.png">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/10/10/why-choose-concurrent/" title="为什么我们要考虑并发" itemprop="url">为什么我们要考虑并发</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-10-09T22:58:03.000Z" itemprop="datePublished"> 发表于 2016-10-10</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU和I-O耗时"><span class="toc-number">1.</span> <span class="toc-text">CPU和I/O耗时</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU上下文切换"><span class="toc-number">2.</span> <span class="toc-text">CPU上下文切换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发任务类型"><span class="toc-number">3.</span> <span class="toc-text">并发任务类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线程的数目"><span class="toc-number">4.</span> <span class="toc-text">线程的数目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写在最后"><span class="toc-number">5.</span> <span class="toc-text">写在最后</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/cpu.png" width="300" class="img-topic"><br>“很显然嘛，并发可以提升效率”</p>
+<p>我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。<br><a id="more"></a></p>
+<h2 id="CPU和I-O耗时"><a href="#CPU和I-O耗时" class="headerlink" title="CPU和I/O耗时"></a>CPU和I/O耗时</h2><p>CPU计算操作所需时间一般在纳秒级别，而I/O操作（包括内存、磁盘）所需时间差距很大，例如CPU一级缓存的响应时间在纳秒级别，而磁盘读取文件的响应时间在毫秒级别，前者较后者相比快5-6个数量级。CPU就像疾如闪电的快银（漫威动画），而磁盘是一个慢吞吞的蜗牛，这两位在一起工作，而且CPU必须I/O操作完成后才进行后续的操作，这对于CPU是一种煎熬，更是一种资源的巨大浪费。</p>
+<p>智慧的操作系统设计者已经想到这点了，适时引入了CPU上下文切换，提高资源的利用率，降低整体的响应时间，避免CPU这种宝贵且昂贵（对比一下你组装电脑时CPU的价格和内存条的价格）的资源浪费。</p>
+<h2 id="CPU上下文切换"><a href="#CPU上下文切换" class="headerlink" title="CPU上下文切换"></a>CPU上下文切换</h2><p>在多任务处理系统中往往会有同时进行多个任务，然而一个CPU核心同一时间只能处理一个任务。操作系统设计者使用了时间片轮转的方式。下图浅蓝色是CPU的时间线，不同颜色的小方块是不同的任务，沿着时间线，CPU在不同的任务间切换。<br><img src="/img/cpu-context-switch.png" alt="CPU上下文切换" title="CPU上下文切换"><br>进一步缩小视角，CPU在任务间切换时，先保存（save）当前任务的状态，然后恢复（restore）下一任务的状态，再执行下一任务。下图引自并发编程网。<br><img src="/img/context-switch.png" alt="CPU上下文切换细节" title="CPU上下文切换细节"></p>
+<h2 id="并发任务类型"><a href="#并发任务类型" class="headerlink" title="并发任务类型"></a>并发任务类型</h2><p>并发任务一般分为CPU密集型和I/O密集型。</p>
+<p>CPU密集型是CPU大量时间都进行计算，在这种状态下，CPU占用率接近饱和，使用更多的线程已经无法使性能得到提升，相反，由于过多的线程数，CPU会发生过多次数的上下文切换，更加会浪费CPU时间，降低效率。</p>
+<p>I/O密集型是任务在做大量的读写操作。站在CPU的角度来看，I/O一直是阻塞状态，而CPU一直处于等待状态。这种情况下非常适合采用多线程，利用CPU上下文切换设计合理的利用CPU，提升整体效率。</p>
+<h2 id="线程的数目"><a href="#线程的数目" class="headerlink" title="线程的数目"></a>线程的数目</h2><p>一般我们遇到的任务都是既有CPU计算，又有I/O操作。基于上面的讲述，一个合理的线程数，可以提升整个任务的效率。那么线程的数目是多少呢？总不能无来由的想一个吧？</p>
+<p>首先确定任务是CPU密集型（加解密，排序），还是I/O密集型（文件读写，网络）。对于CPU密集型，为了减少CPU上下文切换的频率，<code>最佳线程数=CPU核心数</code>；对于I/O密集型，CPU大多数情况下是空闲的，最佳线程数可以参考以下公式：<code>最佳线程数目 = （（线程等待时间+线程CPU时间）/线程CPU时间 ）* CPU核心数</code>。这只是一个估算，在实际生产环境中，需要结合监控数据，硬件环境调整优化，确定系统的最佳点。</p>
+<p>在Linux环境下查看CPU核心数，可以使用命令：<code>cat /proc/cpuinfo |grep &quot;processor&quot;|wc -l</code></p>
+<p>如何获取线程等待时间和线程CPU时间，可以参考这段代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.junit.Assert.assertTrue;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</div><div class="line"><span class="keyword">import</span> java.lang.management.ThreadInfo;</div><div class="line"><span class="keyword">import</span> java.lang.management.ThreadMXBean;</div><div class="line"></div><div class="line"><span class="keyword">import</span> org.junit.Test;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadStatsTest</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="meta">@Test</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testThreadStats</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();</div><div class="line">		assertTrue(threadMXBean.isThreadCpuTimeSupported());</div><div class="line">		assertTrue(threadMXBean.isCurrentThreadCpuTimeSupported());</div><div class="line"></div><div class="line">		threadMXBean.setThreadContentionMonitoringEnabled(<span class="keyword">true</span>);</div><div class="line">		threadMXBean.setThreadCpuTimeEnabled(<span class="keyword">true</span>);</div><div class="line">		assertTrue(threadMXBean.isThreadCpuTimeEnabled());</div><div class="line"></div><div class="line">		ThreadInfo[] threadInfo = threadMXBean.getThreadInfo(threadMXBean.getAllThreadIds());</div><div class="line">		<span class="keyword">for</span> (ThreadInfo threadInfo2 : threadInfo) &#123;</div><div class="line">			<span class="keyword">long</span> blockedTime = threadInfo2.getBlockedTime();</div><div class="line">			<span class="keyword">long</span> waitedTime = threadInfo2.getWaitedTime();</div><div class="line">			<span class="keyword">long</span> cpuTime = threadMXBean.getThreadCpuTime(threadInfo2.getThreadId());</div><div class="line">			<span class="keyword">long</span> userTime = threadMXBean.getThreadUserTime(threadInfo2.getThreadId());</div><div class="line"></div><div class="line">			String msg = String.format(</div><div class="line">					<span class="string">"%s: %d ns cpu time, %d ns user time, blocked for %d ms, waited %d ms"</span>,</div><div class="line">					threadInfo2.getThreadName(), cpuTime, userTime, blockedTime, waitedTime);</div><div class="line">			System.out.println(msg);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>我们在使用并发时，不能单纯地为了并发而并发，或者人云亦云，应该在经过自己的一番思考，形成自己的思维方式和观点，这样才能不随波逐流。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://ningandjiao.iteye.com/blog/2184456" target="_blank" rel="external">关于并发的思考</a></li>
+<li><a href="http://ifeve.com/how-to-calculate-threadpool-size/" target="_blank" rel="external">如何合理地估算线程池大小？</a></li>
+<li><a href="http://ifeve.com/what-is-context-switching/" target="_blank" rel="external">从Java视角理解系统结构(一)CPU上下文切换</a></li>
+<li><a href="http://ifeve.com/java-context-switch/" target="_blank" rel="external">什么是上下文切换</a></li>
+<li><a href="http://stackoverflow.com/questions/1680865/how-can-i-monitor-cpu-usage-per-thread-of-a-java-application-in-a-linux-multipro" target="_blank" rel="external">How can I Monitor cpu usage per thread of a java application in a linux multiprocessor environment?</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/并发/">并发</a><a href="/tags/上下文切换/">上下文切换</a><a href="/tags/效率/">效率</a><a href="/tags/线程数/">线程数</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/10/10/why-choose-concurrent/" data-title="为什么我们要考虑并发 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/10/13/concurrency-vs-parallelism/" title="并发并行傻傻分不清楚">
+  <strong>上一篇：</strong><br/>
+  <span>
+  并发并行傻傻分不清楚</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/07/17/talk-about-transaction/"  title="事务隔离级别浅析">
+ <strong>下一篇：</strong><br/> 
+ <span>事务隔离级别浅析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/10/10/why-choose-concurrent/" data-title="为什么我们要考虑并发" data-url="http://marvinsworld.github.io/2016/10/10/why-choose-concurrent/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU和I-O耗时"><span class="toc-number">1.</span> <span class="toc-text">CPU和I/O耗时</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CPU上下文切换"><span class="toc-number">2.</span> <span class="toc-text">CPU上下文切换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发任务类型"><span class="toc-number">3.</span> <span class="toc-text">并发任务类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#线程的数目"><span class="toc-number">4.</span> <span class="toc-text">线程的数目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写在最后"><span class="toc-number">5.</span> <span class="toc-text">写在最后</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

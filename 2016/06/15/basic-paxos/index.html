@@ -1,0 +1,727 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Basic Paxos算法 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Basic Paxos算法">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/06/15/basic-paxos/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos.jpg">
+<meta property="og:image" content="http://marvinsworld.github.io/img/serilied-consistency.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-model.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-prepare.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-accept.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-chosen.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-broadcast.png">
+<meta property="og:updated_time" content="2017-03-10T05:46:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Basic Paxos算法">
+<meta name="twitter:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/paxos.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/06/15/basic-paxos/" title="Basic Paxos算法" itemprop="url">Basic Paxos算法</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-06-15T02:03:09.000Z" itemprop="datePublished"> 发表于 2016-06-15</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos特性"><span class="toc-number">1.</span> <span class="toc-text">Paxos特性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos解决的问题"><span class="toc-number">2.</span> <span class="toc-text">Paxos解决的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么选择Paxos"><span class="toc-number">3.</span> <span class="toc-text">为什么选择Paxos</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#角色"><span class="toc-number">4.</span> <span class="toc-text">角色</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Server端"><span class="toc-number">4.1.</span> <span class="toc-text">Server端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client端"><span class="toc-number">4.2.</span> <span class="toc-text">Client端</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos模型"><span class="toc-number">5.</span> <span class="toc-text">Paxos模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#名词解释"><span class="toc-number">6.</span> <span class="toc-text">名词解释</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#N种动作"><span class="toc-number">7.</span> <span class="toc-text">N种动作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Acceptor动作"><span class="toc-number">7.1.</span> <span class="toc-text">Acceptor动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Proposer动作"><span class="toc-number">7.2.</span> <span class="toc-text">Proposer动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learner动作"><span class="toc-number">7.3.</span> <span class="toc-text">Learner动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client动作"><span class="toc-number">7.4.</span> <span class="toc-text">Client动作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#算法三阶段"><span class="toc-number">8.</span> <span class="toc-text">算法三阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase1-Prepare"><span class="toc-number">8.1.</span> <span class="toc-text">Phase1:Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase2-Accept"><span class="toc-number">8.2.</span> <span class="toc-text">Phase2:Accept</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase3-Chosen"><span class="toc-number">8.3.</span> <span class="toc-text">Phase3:Chosen</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#疑问"><span class="toc-number">9.</span> <span class="toc-text">疑问</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-number">10.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/paxos.jpg" width="600" height="150" class="img-topic"><br>Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。<br><a id="more"></a></p>
+<h1 id="Paxos特性"><a href="#Paxos特性" class="headerlink" title="Paxos特性"></a>Paxos特性</h1><p>在分布式系统中，一般会采用冗余副本的形式，保证高可用，防止因为宕机、网络等异常而造成系统的不可用。<strong>Paxos可以在分布式异常环境中（包括不超过额定数的节点宕机、网络异常等造成的消息延迟、丢失、重发等异常情况），快速正确地对某个数据的值达成一致，保证不论发生以上任何异常，都不会破坏决议的一致性。</strong></p>
+<h1 id="Paxos解决的问题"><a href="#Paxos解决的问题" class="headerlink" title="Paxos解决的问题"></a>Paxos解决的问题</h1><p>我们先把Paxos放在一边，把视野放大到分布式环境中如何解决冗余副本上数据一致性的问题。<br><img src="/img/serilied-consistency.png" alt="操作序列" title="操作序列"></p>
+<p>上图中，C1是一个客户端，N1、N2、N3是分布式部署的三个服务器，初始状态下N1、N2、N3三个服务器中某个数据的状态都是S0。当客户端要向服务器请求处理操作序列：op1op2op3时（op表示operation）（这里把客户端的写操作简化成向所有服务器发送相同的请操作序列，实际上可能通过Master/Slave模式处理）。如果想保证在处理完客户端的请求之后，N1、N2、N3三个服务器中的数据状态都能从S0变成S1并且一致的话（或者没有执行成功，还是S0状态），就要保证N1、N2、N3在接收并处理操作序列op1op2op3时，严格按照规定的顺序正确执行opi，要么全部执行成功，要不就全部都不执行。</p>
+<p>所以，针对上面的场景，paxos解决的问题就是如何依次确定不可变操作opi的取值，也就是确定第i个操作什么，在确定了opi的内容之后，就可以让各个副本执行opi操作。引自[<a href="http://www.hollischuang.com/archives/693" target="_blank" rel="external">8</a>]</p>
+<p>Paxos真正要解决的问题，Wiki上是这样描述的：</p>
+<blockquote>
+<p>在一个分布式数据库系统中，如果各节点的初始状态一致，每个节点都执行相同的操作序列，那么他们最后能得到一个一致的状态。为保证每个节点执行相同的命令序列，需要在每一条指令上执行一个“一致性算法”以保证每个节点看到的指令一致</p>
+</blockquote>
+<h1 id="为什么选择Paxos"><a href="#为什么选择Paxos" class="headerlink" title="为什么选择Paxos"></a>为什么选择Paxos</h1><p>解决一致性问题的方法有哪些？例子（暂略）</p>
+<h1 id="角色"><a href="#角色" class="headerlink" title="角色"></a>角色</h1><h2 id="Server端"><a href="#Server端" class="headerlink" title="Server端"></a>Server端</h2><ul>
+<li><strong>Proposer（提议者）</strong>：将客户端发送的请求向Acceptor提案，通过二阶段方式尝试让Acceptor接受（accept）提案，在发生冲突后，尝试与Acceptor沟通后按照以Acceptor为准的方式协调冲突。</li>
+<li><strong>Acceptor（决策者）</strong>：根据“喜新厌旧”的原则接收（receive）epochNo，并承诺只接受（accept）更大编号的提案。</li>
+<li><strong>Learner（获知者）</strong>：接收Acceptor已接受（accept）的提案，发现超过额定数的Acceptor接受了同一个提案，形成决议（chosen）通知其他Learner，响应客户（client）。</li>
+</ul>
+<h2 id="Client端"><a href="#Client端" class="headerlink" title="Client端"></a>Client端</h2><ul>
+<li><strong>Client（客户）</strong>：向Server端发送请求，等待回应。比如：向分布式系统发送写请求。</li>
+</ul>
+<h1 id="Paxos模型"><a href="#Paxos模型" class="headerlink" title="Paxos模型"></a>Paxos模型</h1><p><img src="/img/paxos-model.png" alt="Paxos模型" title="Paxos模型"></p>
+<blockquote>
+<p>上图是Paxos所抽象出的模型，为了简化说明，省略了Server1和Server3中的一些细节，这里拿Server2为例来进行说明。每个Server中都抽象出了Proposer, Acceptor和Learner三个角色。每个OP被抽象成一个Proposal，Proposer用来发起Proposal, Acceptor用来决策是否接受Proposal, Learner用来获取各Acceptor决策的结果。与之对应，Paxos算法也分为三个过程：Prepare(准备发起Proposal, 图中绿线), Accept(发起Proposal并协商接受, 图中绿线), Learn(学习获取接受的Proposal, 图中蓝线)。引自[<a href="http://www.cnblogs.com/bodhitree/p/5065754.html" target="_blank" rel="external">6</a>]</p>
+</blockquote>
+<h1 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h1><ul>
+<li><strong>额定数（Quorum）</strong>：字面意思是选举法定人数，在这里表示提案被接受（accept）的Acceptor的数量</li>
+<li><strong>提案（Proposal）</strong>：{epochNo，Value}元组</li>
+<li><strong>提案编号（epochNo）</strong>:由Proposer生成，全局唯一且自增</li>
+<li><strong>提案内容（Value）</strong>：转发Client的请求</li>
+<li><strong>决议（Chosen Value）</strong>：提案被陪审团Learner（Jury Learner）批准（chosen）后的提案</li>
+</ul>
+<h1 id="N种动作"><a href="#N种动作" class="headerlink" title="N种动作"></a>N种动作</h1><h2 id="Acceptor动作"><a href="#Acceptor动作" class="headerlink" title="Acceptor动作"></a>Acceptor动作</h2><ul>
+<li><strong>承诺（promise）</strong>：承诺不再接受比当前持久化的epochNo小的提案</li>
+<li><strong>接受（accept）</strong>：接受Proposer的提案</li>
+<li><strong>通知（notify）</strong>：接受（accept）提案后，通知Jury Learner</li>
+<li><strong>拒绝（reject）</strong>：拒绝当前Proposer的提案，告知Proposer停止尝试当前提案</li>
+</ul>
+<h2 id="Proposer动作"><a href="#Proposer动作" class="headerlink" title="Proposer动作"></a>Proposer动作</h2><ul>
+<li><strong>create（生成）</strong>：生成待发起提案的编号</li>
+<li><strong>prepare（申请）</strong>：向Acceptor申请发起提案的权限</li>
+<li><strong>check（自检）</strong>：根据收到多数向Acceptor的prepare后的响应，决定是重新发起prepare还是commit</li>
+<li><strong>commit（提交）</strong>：根据Acceptor的promise响应，提交提案</li>
+</ul>
+<h2 id="Learner动作"><a href="#Learner动作" class="headerlink" title="Learner动作"></a>Learner动作</h2><ul>
+<li><strong>获知（learn）</strong>接收Acceptor的通知</li>
+<li><strong>发现（discover）</strong>：发现多数Acceptor接受（accept）提案</li>
+<li><strong>批准（chosen）</strong>：发现后，形成决议</li>
+<li><strong>广播（broadcast）</strong>：将决议广播其他Learner已经批准的的决议</li>
+<li><strong>响应（response）</strong>：响应客户（client）</li>
+</ul>
+<h2 id="Client动作"><a href="#Client动作" class="headerlink" title="Client动作"></a>Client动作</h2><ul>
+<li><strong>请求（request）</strong>：向Server发起请求</li>
+</ul>
+<h1 id="算法三阶段"><a href="#算法三阶段" class="headerlink" title="算法三阶段"></a>算法三阶段</h1><h2 id="Phase1-Prepare"><a href="#Phase1-Prepare" class="headerlink" title="Phase1:Prepare"></a>Phase1:Prepare</h2><p><strong>角色Proposer</strong><br><strong>P1a</strong>：Proposer生成了一个编号epochNo（规则：全局唯一且递增），向Acceptor半数以上成员发送Prepare请求。</p>
+<p><strong>角色Acceptor</strong><br><strong>P1b</strong>：Acceptor收到Prepare请求，判断：收到的epochNo是否之前已回复的最大提案的epochNo大,比对结果是true：</p>
+<blockquote>
+<ol>
+<li>持久化epochNo，标记为Max-epochNo（下图中的#1）</li>
+<li>回复请求，返回已经<strong>Accept</strong>的提案中<strong>最大的</strong>epochNo和对应的value（下图中{NULL,NULL}）</li>
+<li>承诺，不会Accept任何小于Max-epochNo的提案</li>
+</ol>
+</blockquote>
+<p><img src="/img/paxos-prepare.png" alt="Prepare阶段" title="Prepare阶段"></p>
+<h2 id="Phase2-Accept"><a href="#Phase2-Accept" class="headerlink" title="Phase2:Accept"></a>Phase2:Accept</h2><p><strong>角色Proposer</strong><br><strong>P2a</strong>：Proposer收到一部分Acceptor的prepare请求后的回复，情况如下：</p>
+<blockquote>
+<ol>
+<li>回复数量大于一半的Acceptor的数量，且所有回复的value都是空，则Proposer发送accept请求，带上<strong>自己指定的value</strong></li>
+<li>回复数量大于一半的Acceptor的数量，且有的回复value不为空，则Proposer发送accept请求，带上<strong>回复中epochNo最大的value</strong></li>
+<li>回复数量小于等于一半Acceptor数量，则尝试生成更大的epochNo，再执行P1a</li>
+</ol>
+</blockquote>
+<p><strong>角色Acceptor</strong><br><strong>P2b</strong>：Acceptor收到accept请求后，</p>
+<blockquote>
+<ol>
+<li>收到的epochNo等于Max-epochNo，回复提交成功，持久化epochNo和value</li>
+<li>收到epochNo小于Max-epochNo，则不回复。P1b中3承诺</li>
+</ol>
+</blockquote>
+<p><img src="/img/paxos-accept.png" alt="Accept阶段" title="Accept阶段"></p>
+<h2 id="Phase3-Chosen"><a href="#Phase3-Chosen" class="headerlink" title="Phase3:Chosen"></a>Phase3:Chosen</h2><p><strong>角色Acceptor</strong><br><strong>P3a</strong>：Acceptor将已经accept的请求通知给陪审团Learner（Jury Learner）</p>
+<p><img src="/img/paxos-chosen.png" alt="Chosen阶段" title="Chosen阶段"></p>
+<p><strong>角色Jury Learner</strong><br><strong>P3b</strong>：陪审团Learner（Jury Learner）收到一部分Acceptor回复accept请求的结果。</p>
+<blockquote>
+<ol>
+<li>回复数量大于一半的Acceptor数量，表示value提交成功，可以发送广播给所有的Proposer、Acceptor、Learner，通知它们已chosen的value</li>
+<li>回复数量小于等于一半的Acceptor数量，Proposer会尝试生成更大的epochNo，重复P1a操作。</li>
+</ol>
+</blockquote>
+<p><img src="/img/paxos-broadcast.png" alt="Broadcast阶段" title="Broadcast阶段"></p>
+<h1 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h1><ol>
+<li><p>Paxos究竟在解决一个什么问题？</p>
+<blockquote>
+<p>分布式存储系统中存在冗余副本，如果不对更新操作的顺序进行控制，就无法保证每个副本的更新操作顺序是一致的，进而无法保证副本之间数据一致性。Paxos旨在解决多副本之间如何保证一次更新操作的数据一致性问题。如果要解决多次更新操作的问题，需要Multi Paxos。</p>
+</blockquote>
+</li>
+<li><p>第一阶段Prepare在做什么？</p>
+<blockquote>
+<p>如果同时有多个议案，可能会导致每个acceptor都接受一个议案，形成不了大多数，造成死锁。第一阶段是竞争提案号，Prepare阶段采用“后来居上”的方式，后者在有更大的epoch的情况下，可以获取互斥访问权限，不会造成死锁。</p>
+</blockquote>
+</li>
+<li><p>第二阶段Accept在做什么？</p>
+<blockquote>
+<p>某些Proposer依次或者同时发起不同的提案，由于网络故障，提案的请求可能在中途部分丢失，每种提案都可能都只有不同少数派Acceptor接收到，每个提案都无法形成多数派，形成死锁。第二阶段是竞争提案值，Accept阶段采用“先到先得”的方式，</p>
+</blockquote>
+</li>
+<li><p>怎么理解accept？</p>
+<blockquote>
+<p>当Acceptor接收（receive）到Proposer提交的请求，经过判断后发现这次请求中带着的提案编号是当前Acceptor持久化的提案编号，确定当前的value值为选定的value值，这是Acceptor接受（accept）请求</p>
+</blockquote>
+</li>
+<li><p>谁来批准提案，形成决议的时机是什么时候？</p>
+<blockquote>
+<p>在优化的方案中，有这样一组陪审团Learners（暂且称为Jury Learners），接收（receive）Acceptor已接受（accept）的提案，当这组Learners发现同一个提案被多数Acceptor接受（accept），就会形成（chosen）决议。</p>
+</blockquote>
+</li>
+<li><p>谁负责通知Learner？</p>
+<blockquote>
+<p>由陪审团Learners（Jury Learners）发起广播，告知其他Learner决议已经形成，同步决议。</p>
+</blockquote>
+</li>
+<li><p>每个副本如何生成唯一且不重复的epoch？</p>
+<blockquote>
+<p>Google的Chubby论文给出了一种步长的方式:以3个proposer P1、P2、P3为例，开始m=0,编号分别为0，1，2P1提交的时候发现了P2已经提交，P2编号为1 > P1的0，因此P1重新计算编号：new P1 = 1*3+0 = 4，P3以编号2提交，发现小于P1的4，因此P3重新编号：new P3 = 1*3+2 = 5</p>
+</blockquote>
+</li>
+<li><p>paxos算法中epoch编号一直递增不重复的，请问在实现paxos算法时，如何处理溢出的问题呢？可能出现proposer的epoch溢出，而acceptor的latest_prepared_epoch是一个很大的值，从而算法无法进行下去？</p>
+<blockquote>
+<p>Epoch不一定要是int整数，只要是可以比较大小的对象就可以。因此解决溢出的方法也很多，例如直接用数组模拟大数，溢出后增加数组的元素数等等。</p>
+</blockquote>
+</li>
+</ol>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="http://blog.csdn.net/chen77716/article/details/6166675" target="_blank" rel="external">Paxos算法1-算法形成理论</a></li>
+<li><a href="http://blog.csdn.net/chen77716/article/details/6170235" target="_blank" rel="external">Paxos算法2-算法过程</a></li>
+<li><a href="http://blog.csdn.net/chen77716/article/details/6172392" target="_blank" rel="external">Paxos算法3-实现探讨</a></li>
+<li><a href="https://yq.aliyun.com/articles/53351" target="_blank" rel="external">对 Paxos 的一些理解</a></li>
+<li><a href="http://blog.csdn.net/anderscloud/article/details/7175209" target="_blank" rel="external">Paxos算法深入分析</a></li>
+<li><a href="http://www.cnblogs.com/bodhitree/p/5065754.html" target="_blank" rel="external">理解 Paxos</a></li>
+<li><a href="http://www.hollischuang.com/archives/693" target="_blank" rel="external">分布式一致性算法——paxos</a></li>
+<li><a href="https://segmentfault.com/a/1190000004474543" target="_blank" rel="external">2PC到3PC到Paxos到Raft到ISR</a></li>
+<li><a href="http://www.cnblogs.com/shaohef/p/4499881.html" target="_blank" rel="external">Paxos算法小结</a></li>
+<li><a href="http://www.chongh.wiki/blog/2016/04/27/paxos-mutilpaxos/" target="_blank" rel="external">Paxos/Mutil-paxos 算法浅析</a></li>
+<li><a href="http://oceanbase.org.cn/?p=90#rd&amp;sukey=3903d1d3b699c208f8fd9337d59ef4b09ab31499f39398e7321ec8f79d2ff57fd6062dc4dc9b838183e81762efbba0a6" target="_blank" rel="external">[Paxos三部曲之一] 使用Basic-Paxos协议的日志同步与恢复</a></li>
+<li><a href="http://wangzhezhe.github.io/blog/2015/10/05/consensus-paxos-and-raft/" target="_blank" rel="external">一致性算法 Paxos Raft 的一些整理</a></li>
+<li><a href="http://baozh.github.io/2016-03/paxos-learning/" target="_blank" rel="external">Paxos协议 学习小结</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/分布式/">分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/分布式/">分布式</a><a href="/tags/一致性/">一致性</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/06/15/basic-paxos/" data-title="Basic Paxos算法 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/07/17/talk-about-transaction/" title="事务隔离级别浅析">
+  <strong>上一篇：</strong><br/>
+  <span>
+  事务隔离级别浅析</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/06/02/idempotent-solutions/"  title="幂等策略分析">
+ <strong>下一篇：</strong><br/> 
+ <span>幂等策略分析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/06/15/basic-paxos/" data-title="Basic Paxos算法" data-url="http://marvinsworld.github.io/2016/06/15/basic-paxos/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos特性"><span class="toc-number">1.</span> <span class="toc-text">Paxos特性</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos解决的问题"><span class="toc-number">2.</span> <span class="toc-text">Paxos解决的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么选择Paxos"><span class="toc-number">3.</span> <span class="toc-text">为什么选择Paxos</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#角色"><span class="toc-number">4.</span> <span class="toc-text">角色</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Server端"><span class="toc-number">4.1.</span> <span class="toc-text">Server端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client端"><span class="toc-number">4.2.</span> <span class="toc-text">Client端</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paxos模型"><span class="toc-number">5.</span> <span class="toc-text">Paxos模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#名词解释"><span class="toc-number">6.</span> <span class="toc-text">名词解释</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#N种动作"><span class="toc-number">7.</span> <span class="toc-text">N种动作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Acceptor动作"><span class="toc-number">7.1.</span> <span class="toc-text">Acceptor动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Proposer动作"><span class="toc-number">7.2.</span> <span class="toc-text">Proposer动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learner动作"><span class="toc-number">7.3.</span> <span class="toc-text">Learner动作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client动作"><span class="toc-number">7.4.</span> <span class="toc-text">Client动作</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#算法三阶段"><span class="toc-number">8.</span> <span class="toc-text">算法三阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase1-Prepare"><span class="toc-number">8.1.</span> <span class="toc-text">Phase1:Prepare</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase2-Accept"><span class="toc-number">8.2.</span> <span class="toc-text">Phase2:Accept</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phase3-Chosen"><span class="toc-number">8.3.</span> <span class="toc-text">Phase3:Chosen</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#疑问"><span class="toc-number">9.</span> <span class="toc-text">疑问</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考"><span class="toc-number">10.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

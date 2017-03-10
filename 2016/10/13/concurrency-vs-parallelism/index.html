@@ -1,0 +1,600 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>并发并行傻傻分不清楚 | 葛一凡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="葛一凡">
+    
+
+    
+    <meta name="description" content="并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="并发并行傻傻分不清楚">
+<meta property="og:url" content="http://marvinsworld.github.io/2016/10/13/concurrency-vs-parallelism/index.html">
+<meta property="og:site_name" content="葛一凡">
+<meta property="og:description" content="并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/concurrency-vs-parallelism.jpg">
+<meta property="og:image" content="http://marvinsworld.github.io/img/cpu-cache.png">
+<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="并发并行傻傻分不清楚">
+<meta name="twitter:description" content="并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/concurrency-vs-parallelism.jpg">
+
+    
+    <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="葛一凡" title="葛一凡"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="葛一凡">葛一凡</a></h1>
+				<h2 class="blog-motto">生命在于折腾，没有不安和躁动，就不会有梦……</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/10/13/concurrency-vs-parallelism/" title="并发并行傻傻分不清楚" itemprop="url">并发并行傻傻分不清楚</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2016-10-13T14:08:06.000Z" itemprop="datePublished"> 发表于 2016-10-13</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从串行到并发再到并行"><span class="toc-number">1.</span> <span class="toc-text">从串行到并发再到并行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#侧重点"><span class="toc-number">2.</span> <span class="toc-text">侧重点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何指导我们的工作？"><span class="toc-number">3.</span> <span class="toc-text">如何指导我们的工作？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+		
+		</div>
+		
+		<p><img src="/img/concurrency-vs-parallelism.jpg" width="600" class="img-topic"><br>并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。<br><a id="more"></a></p>
+<h2 id="从串行到并发再到并行"><a href="#从串行到并发再到并行" class="headerlink" title="从串行到并发再到并行"></a>从串行到并发再到并行</h2><p>最初计算机是单核单任务的，在同一时刻，CPU只能执行一个任务，下一任务必须等待前一个任务完成之后才能执行。举个栗子，你在打游戏时候是不能听歌的，必须把游戏结束，然后才能听歌。这怎么可以！于是多任务处理应运而生，这样就可以一边听歌，一边玩游戏了，用的就是在上文中说到的<a href="http://geyifan.cn/2016/10/10/why-choose-concurrent/#CPU_u4E0A_u4E0B_u6587_u5207_u6362" target="_blank" rel="external">上下文切换（Context Switch）</a>，就可以进一步地压榨CPU了。</p>
+<p>时代在进步，单个CPU的已经被压榨到极限了，多核CPU在天空出划出一道闪电闪亮登场。多核的到来，先前建立起来的单核世界的并发观瞬间崩塌了。(下文引自“从java视角看并发与并行”，原谅我没有用自己的话描述，因为我的描述是多余的) </p>
+<blockquote>
+<p>随着计算机的发展，单个cpu的利用已经被压榨到了极限，于是出现了多个cpu，也就是多核的时代，多核的编程和单核的编程几乎变得不太一样了，单核中，是没有并行的，因此单核中不用考虑cpu级别的问题，但是在多核下，就不一样了，第一颗核计算的数据，很大可能被第二颗核的任务给修改了，虽然这样并不会带来结果的改变，因为cpu内置机制保证了结果一致，但是却对性能造成了巨大的伤害。一个多颗cpu的系统结构如下所示：<br><img src="/img/cpu-cache.png" alt="CPU系统结构" title="CPU系统结构"><br>可以看到，每个cpu有自己的cache，其中L1并不是一块，而是两块，分为代码缓存和数据缓存，而三级缓存，是所有核共享的，因此很容易出现cpu伪共享，这些问题也导致了很多代码，一旦放到多核上，性能不但没有提升，反而降低了不少。</p>
+</blockquote>
+<h2 id="侧重点"><a href="#侧重点" class="headerlink" title="侧重点"></a>侧重点</h2><p>Rob Pike 是Golang大神，他在“并发不是并行”中解释到：</p>
+<blockquote>
+<p>Concurrency is about structure. Parallelism is about execution.<br>即并发关乎结构，并行关乎执行。并发描述的是程序结构的一个属性，并行描述的程序执行时的属性，即同时发生的程度。</p>
+</blockquote>
+<p>而我们关注的重点不在于此，实际工作中，并发可以理解为如何正确、高效地解决对共享资源的访问问题，如何使用锁、通信来<strong>解决共享资源的访问</strong>；并行可以理解为如何使用<strong>更多资源</strong>已达到更加高效地解决问题，提供了使用分片将一个大任务分拆成<strong>隔离</strong>的多个子任务。</p>
+<p>从排队喝咖啡的场景解释并发和并行。使用咖啡机喝咖啡需要三个步骤：泡咖啡豆、磨咖啡豆、煮水。假设前两步各花1分钟，第三步花3分钟，从每个人单独会花费5分钟。</p>
+<p>最初公司只有一台咖啡机，为了防止乱插队的现象，公司规定大家排队按步骤才能喝咖啡，这样排在第10个人就要等45分钟才能轮到他。越往后的人等待的时间越长，这是无法忍受的。</p>
+<p>于是公司修改了一下规则，每个人每次在咖啡机上只能执行一个步骤，完成步骤后把自己的咖啡豆妥善保存，然后在排队，等下次再排到自己就把上次已经保存的咖啡豆拿出来执行下一个步骤，以此类推。按照这个规则，我们再来看一下第10个人，尽管他最终能喝到咖啡的总时间仍然是45分，但是第10个人只需要等待9分钟就能使用一次咖啡机了，这样第10个人直观感受上等待的时间也没有那么漫长了。是不是有一点“朝三暮四”的感觉呢？</p>
+<p>好的，这中间排队喝咖啡的聪明人看破了公司小聪明的伎俩，要求公司做调整，公司无奈，又买了一台咖啡机。回到排队喝咖啡的问题上，这样就可以排两队了，最初的第10个人就提升到另一对的第5个人，算下来只需要等待20分钟时间就可以喝到咖啡了。</p>
+<p>换个思路，把焦点放在第10个人身上。为了喝到咖啡，他可以按照泡咖啡豆、磨咖啡豆、煮水的步骤来，这样花费5分钟。或者可以换一下顺序，因为泡咖啡豆和磨咖啡豆是有先后顺序的，而煮水没有，所以可以先煮水，在煮水的过程中，泡咖啡豆、磨咖啡豆，这样算下来总共花费3分钟。</p>
+<h2 id="如何指导我们的工作？"><a href="#如何指导我们的工作？" class="headerlink" title="如何指导我们的工作？"></a>如何指导我们的工作？</h2><p>并发更多关注的是资源充分利用，而并行关注的是一个任务如何拆分给多个执行者同时执行。并发并行是两种不同的思维方式，并发解决共享资源的问题，而并行致力于使用另一种维度来解决共享资源的问题，即是否可以拆分成隔离的资源。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://www.bucry.com/archives/1328.html" target="_blank" rel="external">从java视角看并发与并行</a></li>
+<li><a href="http://www.ibm.com/developerworks/cn/java/j-java-streams-4-brian-goetz/index.html" target="_blank" rel="external">从并发到并行</a></li>
+<li><a href="http://tonybai.com/2015/06/23/concurrency-and-parallelism/" target="_blank" rel="external">也谈并发与并行</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/并发/">并发</a><a href="/tags/并行/">并行</a><a href="/tags/思维/">思维</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://marvinsworld.github.io/2016/10/13/concurrency-vs-parallelism/" data-title="并发并行傻傻分不清楚 | 葛一凡" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2016/10/19/process-vs-thread/" title="进程 OR 线程">
+  <strong>上一篇：</strong><br/>
+  <span>
+  进程 OR 线程</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2016/10/10/why-choose-concurrent/"  title="为什么我们要考虑并发">
+ <strong>下一篇：</strong><br/> 
+ <span>为什么我们要考虑并发
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/10/13/concurrency-vs-parallelism/" data-title="并发并行傻傻分不清楚" data-url="http://marvinsworld.github.io/2016/10/13/concurrency-vs-parallelism/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从串行到并发再到并行"><span class="toc-number">1.</span> <span class="toc-text">从串行到并发再到并行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#侧重点"><span class="toc-number">2.</span> <span class="toc-text">侧重点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何指导我们的工作？"><span class="toc-number">3.</span> <span class="toc-text">如何指导我们的工作？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/Begin-Python/" title="Begin Python">Begin Python<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ZooKeeper怎么玩/" title="ZooKeeper怎么玩">ZooKeeper怎么玩<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式/" title="分布式">分布式<sup>2</sup></a></li>
+		  
+		
+		  
+		
+		  
+			<li><a href="/categories/基础/" title="基础">基础<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战性能优化/" title="实战性能优化">实战性能优化<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/开源/" title="开源">开源<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/锁/" title="锁">锁<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/主内存/" title="主内存">主内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/工作内存/" title="工作内存">工作内存<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/共享变量/" title="共享变量">共享变量<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/利器/" title="利器">利器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/堆栈/" title="堆栈">堆栈<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/幂等/" title="幂等">幂等<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="https://coderq.com" target="_blank" title="一个面向程序员交流分享的新一代社区">码农圈</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+<div class="doubanshow">
+<p class="asidetitle">豆瓣秀</p>
+<div>
+<script type="text/javascript" src="http://www.douban.com/service/badge/hehe198504@126.com/?show=collection&amp;n=12&amp;columns=3&amp;hidelogo=yes&amp;hideself=yes&amp;cat=book|movie" ></script>
+</div>
+</div>
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m 葛一凡. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/https://github.com/marvinsworld" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		<a href="https://www.douban.com/people/hehe198504@126.com" target="_blank" class="icon-douban" title="豆瓣"></a>
+		
+		
+		<a href="http://www.zhihu.com/people/marvinsworld@126.com" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:marvinsworld@126.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2017 
+		
+		<a href="/about" target="_blank" title="葛一凡">葛一凡</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<a href="#" class="overlay" id="qrcode"></a>',
+  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+  $('.article-share-qrcode').click(function(){
+    var imgSrc = $('#qrcode-pic').attr('data-src');
+    $('#qrcode-pic').attr('src', imgSrc);
+    $('#qrcode-pic').load(function(){
+        $('.qrcode strong').text(' ');
+    });
+  });
+});     
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"marvinsworld"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F4c7951aacef6f32166c95fb3637e5a74' type='text/javascript'%3E%3C/script%3E"));
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
