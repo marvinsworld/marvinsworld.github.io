@@ -78,6 +78,74 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/03/19/locksupport-utilities/" title="AQS阻塞唤醒工具LockSupport" itemprop="url">AQS阻塞唤醒工具LockSupport</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-19T07:45:35.000Z" itemprop="datePublished"> 发表于 2017-03-19</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+    <div class="article-content">
+        
+        <p><img src="/img/utilities.png" width="300" class="img-topic" /><br>LockSupport在JDK源码中描述为：构建锁和其他同步类的基本<strong>线程阻塞</strong>原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/19/locksupport-utilities/#more">阅读全文</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/AQS/">AQS</a><a href="/tags/信号量/">信号量</a><a href="/tags/阻塞/">阻塞</a><a href="/tags/唤醒/">唤醒</a><a href="/tags/许可/">许可</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/19/locksupport-utilities/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/19/locksupport-utilities/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/02/11/what-problems-when-using-distributed-locks/" title="使用分布式锁时考虑哪些问题" itemprop="url">使用分布式锁时考虑哪些问题</a>
   </h1>
   <p class="article-author">By
@@ -163,7 +231,7 @@
 </script>
     <div class="article-content">
         
-        <p><img src="/img/aqs-puzzle-piece.png" width="300" class="img-topic" /><br>AQS全称AbstractQueuedSynchronizer，从字面上解释是抽象队列同步器。<br>
+        <p><img src="/img/aqs-puzzle-piece.png" width="300" class="img-topic" /><br>AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。<br>
         
         
         <p class="article-more-link">
@@ -387,7 +455,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/利器/">利器</a><a href="/tags/堆栈/">堆栈</a><a href="/tags/Btrace/">Btrace</a><a href="/tags/细节/">细节</a>
+  <span></span> <a href="/tags/细节/">细节</a><a href="/tags/利器/">利器</a><a href="/tags/堆栈/">堆栈</a><a href="/tags/Btrace/">Btrace</a>
   </div>
 
 </div>
@@ -455,7 +523,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/监控/">监控</a><a href="/tags/利器/">利器</a><a href="/tags/堆栈/">堆栈</a><a href="/tags/Btrace/">Btrace</a>
+  <span></span> <a href="/tags/利器/">利器</a><a href="/tags/堆栈/">堆栈</a><a href="/tags/Btrace/">Btrace</a><a href="/tags/监控/">监控</a>
   </div>
 
 </div>
@@ -684,74 +752,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2016/11/06/inside-synchronized/" title="重新认识synchronized（下）" itemprop="url">重新认识synchronized（下）</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
-		
-  <p class="article-time">
-    <time datetime="2016-11-06T04:57:14.000Z" itemprop="datePublished"> 发表于 2016-11-06</time>
-    
-  </p>
-  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
-  </p>
-</header>
-<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
-</script>
-    <div class="article-content">
-        
-        <p><img src="/img/synchronized-pause.png" width="300" class="img-topic" /><br>synchronized既保证原子性，又保证内存可见性，是一种线程同步的方式，是锁机制的一种java实现。synchronized的实现基于JVM底层，JVM是基于monitor实现的，而monitor的实现依赖于操作系统的互斥实现。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2016/11/06/inside-synchronized/#more">阅读全文</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/锁/">锁</a><a href="/tags/监视器/">监视器</a><a href="/tags/线程同步/">线程同步</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2016/11/06/inside-synchronized/#comments" class="ds-thread-count comments-count-link" data-thread-key="2016/11/06/inside-synchronized/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -774,7 +774,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>10</sup></a></li>
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>11</sup></a></li>
 		  
 		
 		  
@@ -827,19 +827,19 @@
 			
 		
 			
-				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/资源/" title="资源">资源<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+				<li><a href="/tags/AQS/" title="AQS">AQS<sup>2</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
 			
 		
 			
@@ -875,23 +875,23 @@
 			
 		
 			
+				<li><a href="/tags/Btrace/" title="Btrace">Btrace<sup>2</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
 			
 		
 			
+				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/root/" title="root">root<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/上下文切换/" title="上下文切换">上下文切换<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/效率/" title="效率">效率<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/线程数/" title="线程数">线程数<sup>1</sup></a></li>
 			
 		
 		</ul>

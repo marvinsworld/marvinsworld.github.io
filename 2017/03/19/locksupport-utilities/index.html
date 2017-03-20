@@ -4,25 +4,25 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>AQS漫谈 | 葛一凡</title>
+    <title>AQS阻塞唤醒工具LockSupport | 葛一凡</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="葛一凡">
     
 
     
-    <meta name="description" content="AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。">
+    <meta name="description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="AQS漫谈">
-<meta property="og:url" content="http://marvinsworld.github.io/2017/01/21/talk-about-aqs/index.html">
+<meta property="og:title" content="AQS阻塞唤醒工具LockSupport">
+<meta property="og:url" content="http://marvinsworld.github.io/2017/03/19/locksupport-utilities/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。">
-<meta property="og:image" content="http://marvinsworld.github.io/img/aqs-puzzle-piece.png">
-<meta property="og:updated_time" content="2017-03-18T14:22:53.000Z">
+<meta property="og:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
+<meta property="og:image" content="http://marvinsworld.github.io/img/utilities.png">
+<meta property="og:updated_time" content="2017-03-19T15:24:03.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="AQS漫谈">
-<meta name="twitter:description" content="AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/aqs-puzzle-piece.png">
+<meta name="twitter:title" content="AQS阻塞唤醒工具LockSupport">
+<meta name="twitter:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/utilities.png">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -82,14 +82,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/01/21/talk-about-aqs/" title="AQS漫谈" itemprop="url">AQS漫谈</a>
+      <a href="/2017/03/19/locksupport-utilities/" title="AQS阻塞唤醒工具LockSupport" itemprop="url">AQS阻塞唤醒工具LockSupport</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
 		
   <p class="article-time">
-    <time datetime="2017-01-21T12:00:01.000Z" itemprop="datePublished"> 发表于 2017-01-21</time>
+    <time datetime="2017-03-19T07:45:35.000Z" itemprop="datePublished"> 发表于 2017-03-19</time>
     
   </p>
   <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
@@ -102,23 +102,35 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#LockSupport"><span class="toc-number">1.</span> <span class="toc-text">LockSupport</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞的语义"><span class="toc-number">2.</span> <span class="toc-text">阻塞的语义</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞的语义"><span class="toc-number">1.</span> <span class="toc-text">阻塞的语义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#许可机制"><span class="toc-number">2.</span> <span class="toc-text">许可机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#底层实现"><span class="toc-number">3.</span> <span class="toc-text">底层实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用法"><span class="toc-number">4.</span> <span class="toc-text">用法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#与wait和notify区别"><span class="toc-number">5.</span> <span class="toc-text">与wait和notify区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
 		
 		</div>
 		
-		<p><img src="/img/aqs-puzzle-piece.png" width="300" class="img-topic"><br>AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。<br><a id="more"></a></p>
-<p>本文从AQS的组件Condition和LockSupport入手，一步一步地去拨开AQS的外衣，在深入的过程中会把在学习AQS过程中的疑问一一解答，也许你同样有的这样的疑问，包括以下内容：</p>
+		<p><img src="/img/utilities.png" width="300" class="img-topic"><br>LockSupport在JDK源码中描述为：构建锁和其他同步类的基本<strong>线程阻塞</strong>原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。<br><a id="more"></a></p>
+<p>本文从阻塞唤醒的语义入手，解释LockSupport的内在机制和注意点，最后与Object的wait和notify做对比，包括以下内容：</p>
 <ul>
-<li>LockSupport</li>
-<li>Condition</li>
-<li>tryAcquire</li>
-<li>acquireQueued</li>
+<li>阻塞和唤醒的语义</li>
+<li>许可机制</li>
+<li>底层实现</li>
+<li>用法</li>
+<li>与Object的wait和notify区别</li>
 </ul>
-<h2 id="LockSupport"><a href="#LockSupport" class="headerlink" title="LockSupport"></a>LockSupport</h2><blockquote>
-<p>Basic thread blocking primitives for creating locks and other synchronization classes.</p>
+<h2 id="阻塞的语义"><a href="#阻塞的语义" class="headerlink" title="阻塞的语义"></a>阻塞的语义</h2><p>阻塞是线程在满足某种条件之前暂时停止运行，而被动释放出CPU资源。进入该状态的线程不会主动进入线程队列等待CPU资源，而需要等待满足条件后被唤醒，才能让该线程重新进入到线程队列中排队等待CPU资源。一般造成线程阻塞的原因有：等待获取一个已经被其他线程持有的排他锁、等待某一操作结束、等待某一个时间段。线程阻塞后会被挂起，此时会处于BLOCKED、WAITING、TIMED_WAITING。线程阻塞后会让出CPU资源，这是为避免在自旋上浪费过多的CPU资源，是忙等待（busy wait）的一种优化。</p>
+<h2 id="许可机制"><a href="#许可机制" class="headerlink" title="许可机制"></a>许可机制</h2><p>LockSupport通过“许可”（permit）机制，使用park/unpark实现线程的阻塞和唤醒。许可是指允许线程继续执行，是线程执行的开关，当开关关闭时，线程会阻塞，当开关打开时，线程会立即执行。</p>
+<p>park意指线程在获取许可之前会暂停执行（阻塞在获取许可）。这里的“许可”与线程相关联，类似二元信号量，不可叠加且一个线程只能有一个。有些文章描述“许可”是一次性的，例如当线程A调用park消耗掉一个“许可”（最多只有一个“许可”），在未调用unpark释放出线程A的该“许可”之前，线程A再次调用park时会阻塞在获取“许可”。下文引自<a href="http://xmlandmore.blogspot.com/2012/08/understanding-jvm-thread-states.html" target="_blank" rel="external">Understanding JVM Thread States</a></p>
+<blockquote>
+<p>there can be only one permit per thread, when thread consumes the permit, it disappears.</p>
 </blockquote>
-<p>LockSupport在JDK源码中描述为：构建锁和其他同步类的基本<strong>线程阻塞</strong>原语。既然是原语，那么LockSupport提供了哪些功能呢？</p>
-<h2 id="阻塞的语义"><a href="#阻塞的语义" class="headerlink" title="阻塞的语义"></a>阻塞的语义</h2><p>阻塞是线程在某个节点由于某种原因而无法继续串行的方式执行。造成阻塞的原因有很多：等待获取一个已经被其他线程持有的排他锁、等待某一操作结束、等待一个时间段。线程阻塞后，通常会被挂起，此时会处于BLOCKED、WAITING、TIMED_WAITING。</p>
+<p>出于线程调度的目的，调用park时会阻塞直到许可可用时。如果许可可用，调用park就会立即返回。当前线程就会阻塞，直到调用 unpark 方法，释放出许可。由于许可是默认被占用的，当前线程在启动后调用 park 的话就获取不到许可，因此就进入阻塞状态。</p>
+<h2 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h2><p>LockSupport是使用Unsafe的park实现的，HotSpot Parker用condition和mutex维护了一个_counter变量，park时，变量_counter置为0，unpark时，变量_counter置为1。park操作检查该值是否为1，为1直接返回；不为1，则阻塞。</p>
+<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><p>看到一个关于park/unpark通俗易懂的的例子，代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">    Thread threadA = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            System.out.println(<span class="string">"周末了我在打游戏"</span>);</div><div class="line">            LockSupport.park();</div><div class="line">            System.out.println(<span class="string">"陪女朋友逛逛街"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    threadA.start();</div><div class="line">    Thread.sleep(<span class="number">3000</span>);</div><div class="line">    System.out.println(<span class="string">"女朋友准备要喊男朋友逛街"</span>);</div><div class="line">    LockSupport.unpark(threadA);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在第6行park执行操作时，线程尝试获取许可，由于线程threadA在启动后默认已经获取了许可，park必须等待许可释放后才可以执行。当主线程调用unpark方法释放threadA的许可，threadA才可以继续执行第7行。</p>
+<h2 id="与wait和notify区别"><a href="#与wait和notify区别" class="headerlink" title="与wait和notify区别"></a>与wait和notify区别</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="http://blog.csdn.net/hengyunabc/article/details/28126139" target="_blank" rel="external">Java的LockSupport.park()实现分析</a></li>
+<li><a href="http://agapple.iteye.com/blog/970055" target="_blank" rel="external">java线程阻塞中断和LockSupport的常见问题</a></li>
+<li><a href="http://xmlandmore.blogspot.com/2012/08/understanding-jvm-thread-states.html" target="_blank" rel="external">Understanding JVM Thread States</a></li>
+<li><a href="http://blog.csdn.net/opensure/article/details/53349698" target="_blank" rel="external">java并发包系列—LockSupport</a></li>
+</ol>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -132,7 +144,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/AQS/">AQS</a><a href="/tags/基础/">基础</a><a href="/tags/自旋/">自旋</a><a href="/tags/获取/">获取</a><a href="/tags/释放/">释放</a>
+  <span></span> <a href="/tags/AQS/">AQS</a><a href="/tags/信号量/">信号量</a><a href="/tags/阻塞/">阻塞</a><a href="/tags/唤醒/">唤醒</a><a href="/tags/许可/">许可</a>
   </div>
 
 </div>
@@ -141,7 +153,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://marvinsworld.github.io/2017/01/21/talk-about-aqs/" data-title="AQS漫谈 | 葛一凡" data-tsina="null" class="share clearfix">
+	  <div data-url="http://marvinsworld.github.io/2017/03/19/locksupport-utilities/" data-title="AQS阻塞唤醒工具LockSupport | 葛一凡" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -154,19 +166,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2017/02/11/what-problems-when-using-distributed-locks/" title="使用分布式锁时考虑哪些问题">
-  <strong>上一篇：</strong><br/>
-  <span>
-  使用分布式锁时考虑哪些问题</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2016/12/31/good-bye-2016/"  title="2016拾遗">
+<a href="/2017/02/11/what-problems-when-using-distributed-locks/"  title="使用分布式锁时考虑哪些问题">
  <strong>下一篇：</strong><br/> 
- <span>2016拾遗
+ <span>使用分布式锁时考虑哪些问题
 </span>
 </a>
 </div>
@@ -175,7 +179,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2017/01/21/talk-about-aqs/" data-title="AQS漫谈" data-url="http://marvinsworld.github.io/2017/01/21/talk-about-aqs/"></div>
+	<div class="ds-thread" data-thread-key="2017/03/19/locksupport-utilities/" data-title="AQS阻塞唤醒工具LockSupport" data-url="http://marvinsworld.github.io/2017/03/19/locksupport-utilities/"></div>
 </section>
 
 
@@ -185,7 +189,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#LockSupport"><span class="toc-number">1.</span> <span class="toc-text">LockSupport</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞的语义"><span class="toc-number">2.</span> <span class="toc-text">阻塞的语义</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#阻塞的语义"><span class="toc-number">1.</span> <span class="toc-text">阻塞的语义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#许可机制"><span class="toc-number">2.</span> <span class="toc-text">许可机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#底层实现"><span class="toc-number">3.</span> <span class="toc-text">底层实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#用法"><span class="toc-number">4.</span> <span class="toc-text">用法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#与wait和notify区别"><span class="toc-number">5.</span> <span class="toc-text">与wait和notify区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">6.</span> <span class="toc-text">参考</span></a></li></ol>
  
   </div>
 
