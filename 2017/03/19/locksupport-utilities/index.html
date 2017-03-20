@@ -18,7 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
 <meta property="og:image" content="http://marvinsworld.github.io/img/utilities.png">
-<meta property="og:updated_time" content="2017-03-19T15:24:03.000Z">
+<meta property="og:updated_time" content="2017-03-20T00:22:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AQS阻塞唤醒工具LockSupport">
 <meta name="twitter:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
@@ -115,7 +115,7 @@
 <li>用法</li>
 <li>与Object的wait和notify区别</li>
 </ul>
-<h2 id="阻塞的语义"><a href="#阻塞的语义" class="headerlink" title="阻塞的语义"></a>阻塞的语义</h2><p>阻塞是线程在满足某种条件之前暂时停止运行，而被动释放出CPU资源。进入该状态的线程不会主动进入线程队列等待CPU资源，而需要等待满足条件后被唤醒，才能让该线程重新进入到线程队列中排队等待CPU资源。一般造成线程阻塞的原因有：等待获取一个已经被其他线程持有的排他锁、等待某一操作结束、等待某一个时间段。线程阻塞后会被挂起，此时会处于BLOCKED、WAITING、TIMED_WAITING。线程阻塞后会让出CPU资源，这是为避免在自旋上浪费过多的CPU资源，是忙等待（busy wait）的一种优化。</p>
+<h2 id="阻塞的语义"><a href="#阻塞的语义" class="headerlink" title="阻塞的语义"></a>阻塞的语义</h2><p>阻塞是线程在满足某种条件之前暂时停止运行，而被动释放出CPU资源。进入该状态的线程不会主动进入线程队列等待CPU资源，而需要等待满足条件后被唤醒，才能让该线程重新进入到线程队列中排队等待CPU资源。一般造成线程阻塞的原因有：等待获取一个已经被其他线程持有的排他锁、等待某一操作结束、等待某一个时间段。线程阻塞后会被挂起，此时会处于<code>BLOCKED</code>、<code>WAITING</code>、<code>TIMED_WAITING</code>。线程阻塞后会让出CPU资源，这是为避免在自旋上浪费过多的CPU资源，是忙等待（busy wait）的一种优化。</p>
 <h2 id="许可机制"><a href="#许可机制" class="headerlink" title="许可机制"></a>许可机制</h2><p>LockSupport通过“许可”（permit）机制，使用park/unpark实现线程的阻塞和唤醒。许可是指允许线程继续执行，是线程执行的开关，当开关关闭时，线程会阻塞，当开关打开时，线程会立即执行。</p>
 <p>park意指线程在获取许可之前会暂停执行（阻塞在获取许可）。这里的“许可”与线程相关联，类似二元信号量，不可叠加且一个线程只能有一个。有些文章描述“许可”是一次性的，例如当线程A调用park消耗掉一个“许可”（最多只有一个“许可”），在未调用unpark释放出线程A的该“许可”之前，线程A再次调用park时会阻塞在获取“许可”。下文引自<a href="http://xmlandmore.blogspot.com/2012/08/understanding-jvm-thread-states.html" target="_blank" rel="external">Understanding JVM Thread States</a></p>
 <blockquote>
