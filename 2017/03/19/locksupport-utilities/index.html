@@ -18,7 +18,8 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
 <meta property="og:image" content="http://marvinsworld.github.io/img/utilities.png">
-<meta property="og:updated_time" content="2017-03-20T00:22:14.000Z">
+<meta property="og:image" content="http://marvinsworld.github.io/img/qrcode.jpg">
+<meta property="og:updated_time" content="2017-03-21T05:16:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AQS阻塞唤醒工具LockSupport">
 <meta name="twitter:description" content="LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。">
@@ -125,11 +126,15 @@
 <h2 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h2><p>LockSupport是使用Unsafe的park实现的，HotSpot Parker用condition和mutex维护了一个_counter变量，park时，变量_counter置为0，unpark时，变量_counter置为1。park操作检查该值是否为1，为1直接返回；不为1，则阻塞。</p>
 <h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><p>看到一个关于park/unpark通俗易懂的的例子，代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">    Thread threadA = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            System.out.println(<span class="string">"周末了我在打游戏"</span>);</div><div class="line">            LockSupport.park();</div><div class="line">            System.out.println(<span class="string">"陪女朋友逛逛街"</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">    threadA.start();</div><div class="line">    Thread.sleep(<span class="number">3000</span>);</div><div class="line">    System.out.println(<span class="string">"女朋友准备要喊男朋友逛街"</span>);</div><div class="line">    LockSupport.unpark(threadA);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>在第6行park执行操作时，线程尝试获取许可，由于线程threadA在启动后默认已经获取了许可，park必须等待许可释放后才可以执行。当主线程调用unpark方法释放threadA的许可，threadA才可以继续执行第7行。</p>
-<h2 id="与wait和notify区别"><a href="#与wait和notify区别" class="headerlink" title="与wait和notify区别"></a>与wait和notify区别</h2><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<h2 id="与wait和notify区别"><a href="#与wait和notify区别" class="headerlink" title="与wait和notify区别"></a>与wait和notify区别</h2><p>park/unpark与wati/notify都提供阻塞唤醒的功能，用做线程间同步，不过两者 的粒度不同，park/unpark作用在线程上，而wait/notify作用在对象上，二者没有交集。Object的wait/notify使用前必须获取对象的监视器，而park/unpark不需要。</p>
+<p>写作不易，痛并快乐着；理解可能存在偏差，句句斟酌推敲；抵制抄袭，践行原创技术之路。如果本文能对您有所帮助，实为荣幸，我是葛一凡。<br><img src="/img/qrcode.jpg" alt="微信公众号" title="微信公众号"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
 <li><a href="http://blog.csdn.net/hengyunabc/article/details/28126139" target="_blank" rel="external">Java的LockSupport.park()实现分析</a></li>
 <li><a href="http://agapple.iteye.com/blog/970055" target="_blank" rel="external">java线程阻塞中断和LockSupport的常见问题</a></li>
+<li><a href="http://blog.csdn.net/wangyangzhizhou/article/details/41777547" target="_blank" rel="external">多线程之Java线程阻塞与唤醒</a></li>
 <li><a href="http://xmlandmore.blogspot.com/2012/08/understanding-jvm-thread-states.html" target="_blank" rel="external">Understanding JVM Thread States</a></li>
-<li><a href="http://blog.csdn.net/opensure/article/details/53349698" target="_blank" rel="external">java并发包系列—LockSupport</a></li>
+<li><a href="http://blog.csdn.net/opensure/article/details/53349698" target="_blank" rel="external"> java并发包系列—LockSupport</a></li>
+<li><a href="http://www.cnblogs.com/zhanjindong/p/java-concurrent-package-aqs-locksupport-and-thread-interrupt.html" target="_blank" rel="external">Java并发包源码学习之AQS框架（三）LockSupport和interrupt</a></li>
 </ol>
   
 	</div>
