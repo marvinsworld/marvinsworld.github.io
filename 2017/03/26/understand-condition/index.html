@@ -4,25 +4,25 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>排查线上性能问题的套路 | 葛一凡</title>
+    <title>理解条件等待Condition | 葛一凡</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="葛一凡">
     
 
     
-    <meta name="description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
+    <meta name="description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
 <meta property="og:type" content="article">
-<meta property="og:title" content="排查线上性能问题的套路">
-<meta property="og:url" content="http://marvinsworld.github.io/2016/12/24/find-bug-online-skills/index.html">
+<meta property="og:title" content="理解条件等待Condition">
+<meta property="og:url" content="http://marvinsworld.github.io/2017/03/26/understand-condition/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
-<meta property="og:image" content="http://marvinsworld.github.io/img/find-taolu.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
+<meta property="og:image" content="http://marvinsworld.github.io/img/understand.png">
+<meta property="og:updated_time" content="2017-03-30T12:13:43.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="排查线上性能问题的套路">
-<meta name="twitter:description" content="虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/find-taolu.jpg">
+<meta name="twitter:title" content="理解条件等待Condition">
+<meta name="twitter:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/understand.png">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -82,14 +82,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2016/12/24/find-bug-online-skills/" title="排查线上性能问题的套路" itemprop="url">排查线上性能问题的套路</a>
+      <a href="/2017/03/26/understand-condition/" title="理解条件等待Condition" itemprop="url">理解条件等待Condition</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
 		
   <p class="article-time">
-    <time datetime="2016-12-24T15:49:37.000Z" itemprop="datePublished"> 发表于 2016-12-24</time>
+    <time datetime="2017-03-26T09:17:07.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
     
   </p>
   <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
@@ -102,12 +102,27 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">1.1.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">2.</span> <span class="toc-text">专业术语</span></a></li></ol>
 		
 		</div>
 		
-		<p><img src="/img/find-taolu.jpg" width="300" class="img-topic"><br>虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。<br><a id="more"></a></p>
-<p>虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。</p>
+		<p><img src="/img/understand.png" width="300" class="img-topic"><br>Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享数据达到某种状态时再进行某种操作，而这个状态的成立，则是由另外一个线程来完成后发送信号来通知的。<br><a id="more"></a></p>
+<p>本文从条件等待的标准形式说开来，解释Condition相关的术语，等待队列图从直观的角度理解条件等待，最后会对比内置监视器队列和条件队列的异同点。主要包括以下内容：</p>
+<ul>
+<li>从条件等待的标准形式说开来</li>
+<li>专业术语</li>
+<li>等待队列图</li>
+<li>条件等待机制 VS 轮询和休眠方式</li>
+<li>Object VS ConditionObject</li>
+<li>ConditionObject使用场景</li>
+</ul>
+<h2 id="从条件等待的标准形式说开来"><a href="#从条件等待的标准形式说开来" class="headerlink" title="从条件等待的标准形式说开来"></a>从条件等待的标准形式说开来</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">获取锁;<span class="comment">//①</span></div><div class="line"><span class="keyword">while</span> (条件状态不满足) &#123;<span class="comment">//②</span></div><div class="line">    释放锁;<span class="comment">//③</span></div><div class="line">    线程挂起等待，直到条件满足通知;<span class="comment">//④</span></div><div class="line">    重新获取锁;<span class="comment">//⑤</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">操作临界区保护的共享数据;<span class="comment">//⑥</span></div><div class="line">释放锁;<span class="comment">//⑦</span></div></pre></td></tr></table></figure>
+<p>以上是条件等待的标准形式，逐条解释一下：<br>①判断条件状态是否满足和操作共享数据必须在锁的保护下，保证多线程环境中同一时刻只能有一个线程修改条件状态和共享数据<br>②③④当条件状态不满足时，由于第1步中已经获取了，必须首先释放锁，进入等待唤醒，当前线程阻塞在④，其他线程才有机会获取锁后，修改条件状态，再唤醒等待线程。<br>⑤当前线程被唤醒后，需要首先获取锁，然后再次检查条件状态是否满足（原因见下文），如果再次检查发现条件状态仍然不满足（当前线程一定在想我一定遇到了一个假唤醒），那么当前线程继续重复②③④的逻辑<br>⑥如果当前线程备唤醒后再次检查条件状态已经满足（肯定是其他线程修改了条件状态，因为当前线程一直在等待，没有任何操作）。由于已经获得了锁，有了修改共享数据的资格。<br>⑦共享数据修改完后要释放掉锁，其他线程就可以尝试获取锁。就像买完火车票后就要离开售票窗口，这样后面排队的人才可以买票。</p>
+<h3 id="使用while而不使用if的原因"><a href="#使用while而不使用if的原因" class="headerlink" title="使用while而不使用if的原因"></a>使用while而不使用if的原因</h3><ol>
+<li>线程可能在不满足条件状态下被唤醒，这种称为虚唤醒。在这种情况下，被唤醒的线程必须重新检查条件，否则会出现在不满足条件状态下操作共享数据，这很危险。</li>
+<li>使用notifyAll唤醒其他等待线程时，线程被唤醒到重新获取锁的间隔，其他线程已经获取锁并修改了条件状态，使得条件状态不满足。</li>
+</ol>
+<h2 id="专业术语"><a href="#专业术语" class="headerlink" title="专业术语"></a>专业术语</h2><p>条件谓词，一个不知所云的概念。条件谓词是决定线程是等待还是执行的关键，所有等待的线程需要等待某种条件成真时才能执行，这种条件就是条件谓词。举个例子，水池有两个水管一个进水管一个出水管，当水池不满的时候，应当打开进水口，当水池满的时候应该关闭进水口。这里水池不满就是进水的条件谓词，反过来，水池不空就是打开出水的条件谓词。</p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -115,13 +130,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/实战性能优化/">实战性能优化</a>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/套路/">套路</a><a href="/tags/优化/">优化</a>
+  <span></span> <a href="/tags/阻塞/">阻塞</a><a href="/tags/唤醒/">唤醒</a><a href="/tags/Condition/">Condition</a><a href="/tags/条件/">条件</a>
   </div>
 
 </div>
@@ -130,7 +145,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://marvinsworld.github.io/2016/12/24/find-bug-online-skills/" data-title="排查线上性能问题的套路 | 葛一凡" data-tsina="null" class="share clearfix">
+	  <div data-url="http://marvinsworld.github.io/2017/03/26/understand-condition/" data-title="理解条件等待Condition | 葛一凡" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -143,19 +158,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2016/12/31/good-bye-2016/" title="2016拾遗">
-  <strong>上一篇：</strong><br/>
-  <span>
-  2016拾遗</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2016/12/17/btrace-details/"  title="深入Btrace">
+<a href="/2017/03/19/locksupport-utilities/"  title="AQS阻塞唤醒工具LockSupport">
  <strong>下一篇：</strong><br/> 
- <span>深入Btrace
+ <span>AQS阻塞唤醒工具LockSupport
 </span>
 </a>
 </div>
@@ -164,7 +171,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/12/24/find-bug-online-skills/" data-title="排查线上性能问题的套路" data-url="http://marvinsworld.github.io/2016/12/24/find-bug-online-skills/"></div>
+	<div class="ds-thread" data-thread-key="2017/03/26/understand-condition/" data-title="理解条件等待Condition" data-url="http://marvinsworld.github.io/2017/03/26/understand-condition/"></div>
 </section>
 
 
@@ -174,7 +181,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">1.1.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">2.</span> <span class="toc-text">专业术语</span></a></li></ol>
  
   </div>
 

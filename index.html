@@ -78,6 +78,74 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/03/26/understand-condition/" title="理解条件等待Condition" itemprop="url">理解条件等待Condition</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-26T09:17:07.000Z" itemprop="datePublished"> 发表于 2017-03-26</time>
+    
+  </p>
+  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
+  </p>
+</header>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+    <div class="article-content">
+        
+        <p><img src="/img/understand.png" width="300" class="img-topic" /><br>Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享数据达到某种状态时再进行某种操作，而这个状态的成立，则是由另外一个线程来完成后发送信号来通知的。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/26/understand-condition/#more">阅读全文</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/阻塞/">阻塞</a><a href="/tags/唤醒/">唤醒</a><a href="/tags/Condition/">Condition</a><a href="/tags/条件/">条件</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/26/understand-condition/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/26/understand-condition/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/03/19/locksupport-utilities/" title="AQS阻塞唤醒工具LockSupport" itemprop="url">AQS阻塞唤醒工具LockSupport</a>
   </h1>
   <p class="article-author">By
@@ -684,74 +752,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2016/11/17/main-memory-and-working-memory/" title="主内存和工作内存" itemprop="url">主内存和工作内存</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
-		
-  <p class="article-time">
-    <time datetime="2016-11-17T14:28:26.000Z" itemprop="datePublished"> 发表于 2016-11-17</time>
-    
-  </p>
-  <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
-  </p>
-</header>
-<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
-</script>
-    <div class="article-content">
-        
-        <p><img src="/img/cpu-cache-memory.png" width="300" class="img-topic" /><br>主内存（Main Memory）和工作内存（Working Memory）是为了形象理解缓存和CPU级别缓存而创造出来的一组概念。Java内存模型（JMM）中通过主内存和工作内存来屏蔽具体硬件和操作系统的差别，JMM规定主内存用于存储所有变量，每个线程还有自己的工作内存，线程的工作内存中保存了被该线程使用到的主内存变量的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直接读取主内存中的变量。<br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2016/11/17/main-memory-and-working-memory/#more">阅读全文</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/主内存/">主内存</a><a href="/tags/工作内存/">工作内存</a><a href="/tags/共享变量/">共享变量</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2016/11/17/main-memory-and-working-memory/#comments" class="ds-thread-count comments-count-link" data-thread-key="2016/11/17/main-memory-and-working-memory/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -774,7 +774,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>11</sup></a></li>
+			<li><a href="/categories/Java并发演进之路/" title="Java并发演进之路">Java并发演进之路<sup>12</sup></a></li>
 		  
 		
 		  
@@ -831,7 +831,11 @@
 			
 		
 			
-				<li><a href="/tags/AQS/" title="AQS">AQS<sup>2</sup></a></li>
+				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/唤醒/" title="唤醒">唤醒<sup>2</sup></a></li>
 			
 		
 			
@@ -839,19 +843,15 @@
 			
 		
 			
-				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+				<li><a href="/tags/场景/" title="场景">场景<sup>2</sup></a></li>
 			
 		
 			
@@ -879,15 +879,15 @@
 			
 		
 			
-				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+				<li><a href="/tags/AQS/" title="AQS">AQS<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/重复提交/" title="重复提交">重复提交<sup>1</sup></a></li>
+				<li><a href="/tags/阻塞/" title="阻塞">阻塞<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/副作用/" title="副作用">副作用<sup>1</sup></a></li>
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
 			
 		
 			
