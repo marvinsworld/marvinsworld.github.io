@@ -14,21 +14,21 @@
     <meta name="description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Basic Paxos算法">
-<meta property="og:url" content="http://marvinsworld.github.io/2016/06/15/basic-paxos/index.html">
+<meta property="og:url" content="http://geyifan.cn/2016/06/15/basic-paxos/index.html">
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos.jpg">
-<meta property="og:image" content="http://marvinsworld.github.io/img/serilied-consistency.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-model.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-prepare.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-accept.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-chosen.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/paxos-broadcast.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos.jpg">
+<meta property="og:image" content="http://geyifan.cn/img/serilied-consistency.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos-model.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos-prepare.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos-accept.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos-chosen.png">
+<meta property="og:image" content="http://geyifan.cn/img/paxos-broadcast.png">
 <meta property="og:updated_time" content="2017-03-10T05:46:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Basic Paxos算法">
 <meta name="twitter:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/paxos.jpg">
+<meta name="twitter:image" content="http://geyifan.cn/img/paxos.jpg">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -73,7 +73,7 @@
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
 						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
-						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+						<input type="hidden" name="q" value="site:geyifan.cn">
 					</form>
 					
 					</li>
@@ -278,7 +278,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://marvinsworld.github.io/2016/06/15/basic-paxos/" data-title="Basic Paxos算法 | 葛一凡" data-tsina="null" class="share clearfix">
+	  <div data-url="http://geyifan.cn/2016/06/15/basic-paxos/" data-title="Basic Paxos算法 | 葛一凡" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -312,7 +312,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/06/15/basic-paxos/" data-title="Basic Paxos算法" data-url="http://marvinsworld.github.io/2016/06/15/basic-paxos/"></div>
+	<div class="ds-thread" data-thread-key="2016/06/15/basic-paxos/" data-title="Basic Paxos算法" data-url="http://geyifan.cn/2016/06/15/basic-paxos/"></div>
 </section>
 
 

@@ -14,16 +14,16 @@
     <meta name="description" content="synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等）">
 <meta property="og:type" content="article">
 <meta property="og:title" content="重新认识synchronized（上）">
-<meta property="og:url" content="http://marvinsworld.github.io/2016/10/26/re-recognized-synchronized/index.html">
+<meta property="og:url" content="http://geyifan.cn/2016/10/26/re-recognized-synchronized/index.html">
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等）">
-<meta property="og:image" content="http://marvinsworld.github.io/img/synchronization.png">
-<meta property="og:image" content="http://marvinsworld.github.io/img/java-monitor.png">
+<meta property="og:image" content="http://geyifan.cn/img/synchronization.png">
+<meta property="og:image" content="http://geyifan.cn/img/java-monitor.png">
 <meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重新认识synchronized（上）">
 <meta name="twitter:description" content="synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等）">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/synchronization.png">
+<meta name="twitter:image" content="http://geyifan.cn/img/synchronization.png">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -68,7 +68,7 @@
 					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
 						<label>Search</label>
 						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
-						<input type="hidden" name="q" value="site:marvinsworld.github.io">
+						<input type="hidden" name="q" value="site:geyifan.cn">
 					</form>
 					
 					</li>
@@ -145,7 +145,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://marvinsworld.github.io/2016/10/26/re-recognized-synchronized/" data-title="重新认识synchronized（上） | 葛一凡" data-tsina="null" class="share clearfix">
+	  <div data-url="http://geyifan.cn/2016/10/26/re-recognized-synchronized/" data-title="重新认识synchronized（上） | 葛一凡" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -179,7 +179,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2016/10/26/re-recognized-synchronized/" data-title="重新认识synchronized（上）" data-url="http://marvinsworld.github.io/2016/10/26/re-recognized-synchronized/"></div>
+	<div class="ds-thread" data-thread-key="2016/10/26/re-recognized-synchronized/" data-title="重新认识synchronized（上）" data-url="http://geyifan.cn/2016/10/26/re-recognized-synchronized/"></div>
 </section>
 
 
