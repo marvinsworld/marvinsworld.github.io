@@ -11,18 +11,20 @@
     
 
     
-    <meta name="description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
+    <meta name="description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables），是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共">
 <meta property="og:type" content="article">
 <meta property="og:title" content="理解条件等待Condition">
 <meta property="og:url" content="http://marvinsworld.github.io/2017/03/26/understand-condition/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
-<meta property="og:image" content="http://marvinsworld.github.io/img/understand.png">
-<meta property="og:updated_time" content="2017-03-30T12:13:43.000Z">
+<meta property="og:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables），是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共">
+<meta property="og:image" content="http://marvinsworld.github.io/img/condition-queues.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/condition-queue-room.png">
+<meta property="og:image" content="http://marvinsworld.github.io/img/qrcode.jpg">
+<meta property="og:updated_time" content="2017-04-04T06:09:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="理解条件等待Condition">
-<meta name="twitter:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享">
-<meta name="twitter:image" content="http://marvinsworld.github.io/img/understand.png">
+<meta name="twitter:description" content="Condtion也被称为条件队列（condition queues）或者条件变量（condition variables），是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共">
+<meta name="twitter:image" content="http://marvinsworld.github.io/img/condition-queues.png">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -102,27 +104,42 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">1.1.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">2.</span> <span class="toc-text">专业术语</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">2.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">3.</span> <span class="toc-text">专业术语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁、条件谓词、条件队列三者关系"><span class="toc-number">4.</span> <span class="toc-text">锁、条件谓词、条件队列三者关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
 		
 		</div>
 		
-		<p><img src="/img/understand.png" width="300" class="img-topic"><br>Condtion也被称为条件队列（condition queues）或者条件变量（condition variables）是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享数据达到某种状态时再进行某种操作，而这个状态的成立，则是由另外一个线程来完成后发送信号来通知的。<br><a id="more"></a></p>
+		<p><img src="/img/condition-queues.png" height="300" class="img-topic"><br>Condtion也被称为条件队列（condition queues）或者条件变量（condition variables），是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享数据达到某种状态时再进行某种操作，而这个状态的成立，则是由另外一个线程来完成后发送信号来通知的。<br><a id="more"></a></p>
 <p>本文从条件等待的标准形式说开来，解释Condition相关的术语，等待队列图从直观的角度理解条件等待，最后会对比内置监视器队列和条件队列的异同点。主要包括以下内容：</p>
 <ul>
 <li>从条件等待的标准形式说开来</li>
 <li>专业术语</li>
-<li>等待队列图</li>
-<li>条件等待机制 VS 轮询和休眠方式</li>
-<li>Object VS ConditionObject</li>
-<li>ConditionObject使用场景</li>
+<li>锁、条件谓词、条件队列三者关系</li>
 </ul>
 <h2 id="从条件等待的标准形式说开来"><a href="#从条件等待的标准形式说开来" class="headerlink" title="从条件等待的标准形式说开来"></a>从条件等待的标准形式说开来</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">获取锁;<span class="comment">//①</span></div><div class="line"><span class="keyword">while</span> (条件状态不满足) &#123;<span class="comment">//②</span></div><div class="line">    释放锁;<span class="comment">//③</span></div><div class="line">    线程挂起等待，直到条件满足通知;<span class="comment">//④</span></div><div class="line">    重新获取锁;<span class="comment">//⑤</span></div><div class="line">&#125;</div><div class="line"></div><div class="line">操作临界区保护的共享数据;<span class="comment">//⑥</span></div><div class="line">释放锁;<span class="comment">//⑦</span></div></pre></td></tr></table></figure>
 <p>以上是条件等待的标准形式，逐条解释一下：<br>①判断条件状态是否满足和操作共享数据必须在锁的保护下，保证多线程环境中同一时刻只能有一个线程修改条件状态和共享数据<br>②③④当条件状态不满足时，由于第1步中已经获取了，必须首先释放锁，进入等待唤醒，当前线程阻塞在④，其他线程才有机会获取锁后，修改条件状态，再唤醒等待线程。<br>⑤当前线程被唤醒后，需要首先获取锁，然后再次检查条件状态是否满足（原因见下文），如果再次检查发现条件状态仍然不满足（当前线程一定在想我一定遇到了一个假唤醒），那么当前线程继续重复②③④的逻辑<br>⑥如果当前线程备唤醒后再次检查条件状态已经满足（肯定是其他线程修改了条件状态，因为当前线程一直在等待，没有任何操作）。由于已经获得了锁，有了修改共享数据的资格。<br>⑦共享数据修改完后要释放掉锁，其他线程就可以尝试获取锁。就像买完火车票后就要离开售票窗口，这样后面排队的人才可以买票。</p>
-<h3 id="使用while而不使用if的原因"><a href="#使用while而不使用if的原因" class="headerlink" title="使用while而不使用if的原因"></a>使用while而不使用if的原因</h3><ol>
+<h2 id="使用while而不使用if的原因"><a href="#使用while而不使用if的原因" class="headerlink" title="使用while而不使用if的原因"></a>使用while而不使用if的原因</h2><ol>
 <li>线程可能在不满足条件状态下被唤醒，这种称为虚唤醒。在这种情况下，被唤醒的线程必须重新检查条件，否则会出现在不满足条件状态下操作共享数据，这很危险。</li>
 <li>使用notifyAll唤醒其他等待线程时，线程被唤醒到重新获取锁的间隔，其他线程已经获取锁并修改了条件状态，使得条件状态不满足。</li>
 </ol>
 <h2 id="专业术语"><a href="#专业术语" class="headerlink" title="专业术语"></a>专业术语</h2><p>条件谓词，一个不知所云的概念。条件谓词是决定线程是等待还是执行的关键，所有等待的线程需要等待某种条件成真时才能执行，这种条件就是条件谓词。举个例子，水池有两个水管一个进水管一个出水管，当水池不满的时候，应当打开进水口，当水池满的时候应该关闭进水口。这里水池不满就是进水的条件谓词，反过来，水池不空就是打开出水的条件谓词。</p>
+<p>一组线程会因为不满足同一个条件状态而处于等待状态，这就是条件队列。条件队列中的对象和锁对象是同一个对象，因为状态条件由锁保护，每次判断条件状态时都要先获取锁。</p>
+<h2 id="锁、条件谓词、条件队列三者关系"><a href="#锁、条件谓词、条件队列三者关系" class="headerlink" title="锁、条件谓词、条件队列三者关系"></a>锁、条件谓词、条件队列三者关系</h2><p><img src="/img/condition-queue-room.png" alt="条件队列与锁的获取和释放" title="条件队列与锁的获取和释放"><br>条件队列就像一座房子，这座房子有很多房间（ROOMS），锁就像进入就进入会员厅（VIP ROOM）的黄金钥匙，共享数据像藏在这座房子某一个房间中保险箱中。</p>
+<p>①新建的线程会进入到一个叫做大厅（HALL ROOM）的房间，到这里的线程会第一次尝试获取锁，获取不到锁的线程阻塞在这里。</p>
+<p>②有一个很幸运的线程获得了黄金钥匙，得以进入到会员厅（VIP ROOM），这个房间统一时间只能有一个线程进入。</p>
+<p>③条件谓词是打开保险箱的白金钥匙，进入VIP ROOM的线程需要判断是否条件谓词是否为真，很不幸这个线程不满足条件谓词，进入一个叫做等待厅（WAITING ROOM）等待唤醒，在进入之前，释放了黄金钥匙。</p>
+<p>④线程在等待厅中按照进入的先后顺序排列好等待唤醒。</p>
+<p>⑤唤醒的线程再次尝试获取黄金钥匙并且很幸运又一次获取到黄金钥匙，再次判断条件谓词是否为真，如果为真，这个线程就可以打开保险箱操作里面的数据。</p>
+<p>⑥操作完数据后，线程从出口走出这座房子，并把黄金钥匙放回会员厅的房间门口。</p>
+<p>写作不易，痛并快乐着；理解可能存在偏差，句句斟酌推敲；抵制抄袭，践行原创技术之路。如果本文能对您有所帮助，实为荣幸，我是葛一凡。<br><img src="/img/qrcode.jpg" alt="微信公众号" title="微信公众号"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://docs.oracle.com/javase/7/docs/api/index.html" target="_blank" rel="external">Java Platform Standard Edition 7 Documentation</a></li>
+<li><a href="http://blog.csdn.net/nhn_devlab/article/details/6117239" target="_blank" rel="external">对条件变量(condition variable)的讨论</a></li>
+<li><a href="http://regrecall.github.io/2014/06/24/wait-notify/" target="_blank" rel="external">从零单排 Java concurrency, wait &amp; notify</a></li>
+<li><a href="http://blog.csdn.net/hengyunabc/article/details/27969613?locationNum=1&amp;fps=1" target="_blank" rel="external">并行编程之条件变量（posix condition variables）</a></li>
+<li><a href="http://blog.poxiao.me/p/multi-threading-in-cpp11-part-3-condition-variable/" target="_blank" rel="external">C++11之多线程(三、条件变量）</a></li>
+<li><a href="http://blog.csdn.net/anonymalias/article/details/9174481" target="_blank" rel="external">Linux线程同步之条件变量</a></li>
+<li><a href="http://yizhenn.iteye.com/blog/2308688" target="_blank" rel="external">JAVA并发-条件队列</a></li>
+</ol>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -181,7 +198,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">1.1.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">2.</span> <span class="toc-text">专业术语</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件等待的标准形式说开来"><span class="toc-number">1.</span> <span class="toc-text">从条件等待的标准形式说开来</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用while而不使用if的原因"><span class="toc-number">2.</span> <span class="toc-text">使用while而不使用if的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#专业术语"><span class="toc-number">3.</span> <span class="toc-text">专业术语</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁、条件谓词、条件队列三者关系"><span class="toc-number">4.</span> <span class="toc-text">锁、条件谓词、条件队列三者关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol>
  
   </div>
 
