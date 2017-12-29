@@ -4,25 +4,19 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>ZooKeeper怎么玩之一：为什么需要ZK | 葛一凡</title>
+    <title>葛一凡</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="葛一凡">
     
 
     
-    <meta name="description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="ZooKeeper怎么玩之一：为什么需要ZK">
-<meta property="og:url" content="http://geyifan.cn/2015/05/16/zookeeper1/index.html">
+    <meta property="og:type" content="website">
+<meta property="og:title" content="葛一凡">
+<meta property="og:url" content="http://geyifan.cn/page/4/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
-<meta property="og:image" content="http://geyifan.cn/img/zookeeper1.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ZooKeeper怎么玩之一：为什么需要ZK">
-<meta name="twitter:description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
-<meta name="twitter:image" content="http://geyifan.cn/img/zookeeper1.png">
+<meta name="twitter:title" content="葛一凡">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -76,10 +70,12 @@
 </div>
     </header>
     <div id="container">
-      <div id="main" class="post" itemscope itemprop="blogPost">
-  
-	<article itemprop="articleBody"> 
-		<header class="article-info clearfix">
+      <div id="main">
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
   <h1 itemprop="name">
     
       <a href="/2015/05/16/zookeeper1/" title="ZooKeeper怎么玩之一：为什么需要ZK" itemprop="url">ZooKeeper怎么玩之一：为什么需要ZK</a>
@@ -97,42 +93,19 @@
 </header>
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
-	<div class="article-content">
-		
-		<div id="toc" class="toc-article">
-			<strong class="toc-title">文章目录</strong>
-		
-			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ZooKeeper是什么"><span class="toc-number">1.</span> <span class="toc-text">ZooKeeper是什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式环境下遇到的问题"><span class="toc-number">2.</span> <span class="toc-text">分布式环境下遇到的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有ZooKeeper之前的世界是什么样子"><span class="toc-number">3.</span> <span class="toc-text">没有ZooKeeper之前的世界是什么样子</span></a></li></ol>
-		
-		</div>
-		
-		<p><img src="/img/zookeeper1.png" width="400" height="400" class="img-topic"><br><!-- ![Alt text](/img/zookeeper1.png "zookeeper") --></p>
-<p>学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。<br><a id="more"></a></p>
-<h1 id="ZooKeeper是什么"><a href="#ZooKeeper是什么" class="headerlink" title="ZooKeeper是什么"></a>ZooKeeper是什么</h1><p>ZooKeeper是一个分布式协调服务，它致力去解决如何在分布式环境下保持数据一致性的问题。</p>
-<h1 id="分布式环境下遇到的问题"><a href="#分布式环境下遇到的问题" class="headerlink" title="分布式环境下遇到的问题"></a>分布式环境下遇到的问题</h1><p>共享的资源在并发的情况下会出现竞争，在线程间可以使用Java提供的锁机制来协调这些资源，那么在分布式的环境下，如何来协调这些资源呢？</p>
-<p>如何协调分布式环境下的资源，首先应该明确由单机环境转到分布式环境下遇到了什么问题？</p>
-<ol>
-<li><p><strong>分布式环境下无法保证顺序</strong>。</p>
-<p> 在单机环境如果想让A先执行，B后执行，先调用A后调用B就可以了；由于网络是不可靠的，分布式环境中则不同，在网络延迟的情况下A可能比B执行要晚。</p>
-</li>
-<li><p><strong>分布式环境下无法明确执行结果</strong>。</p>
-<p> 单机中调用A成功和失败很明确；而在分布式环境中，即使调用A执行成功了，而在网络传输中超时了，此时无法判断A是否执行成功了，需要通过重试的方式才能判断A有没有执行成功。</p>
-</li>
-<li><p><strong>分布式环境下无法保证数据一致性</strong>。</p>
-<p> 分布式环境如果很多台服务器提供相同的服务，如何保证服务的某一个改动要么同时生效，要么失败，是分布式和单机环境的最重要的区别。</p>
-</li>
-</ol>
-<h1 id="没有ZooKeeper之前的世界是什么样子"><a href="#没有ZooKeeper之前的世界是什么样子" class="headerlink" title="没有ZooKeeper之前的世界是什么样子"></a>没有ZooKeeper之前的世界是什么样子</h1><ol>
-<li><p><strong>保证事务顺序一致性</strong>。</p>
-<p> 如果事务A在一台服务器上优先于事务B先执行，则在所有的服务器上事务A都将优先于事务B执行。由于网络是不可靠的，如果没有ZooKeeper如何保证在所有服务器上事务顺序一致将是一个很复杂的问题，而ZooKeeper使我们专注于业务逻辑，而不用过分关注于分布式协调。</p>
-</li>
-<li><p><strong>保证单调一致性</strong>。</p>
-<p> 单调一致性是最终一致性的变种。在任何情况下，用户一旦读到某个数据的某次更新后的值，就不会再读到比这个值更旧的值了。</p>
-</li>
-</ol>
-  
-	</div>
-		<footer class="article-footer clearfix">
+    <div class="article-content">
+        
+        <p><img src="/img/zookeeper1.png" width="400" height="400" class="img-topic" /><br><!-- ![Alt text](/img/zookeeper1.png "zookeeper") --></p>
+<p>学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。<br>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2015/05/16/zookeeper1/#more">阅读全文</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
 <div class="article-catetags">
 
 <div class="article-categories">
@@ -150,47 +123,31 @@
 
 
 
-	<div class="article-share" id="share">
-	
-	  <div data-url="http://geyifan.cn/2015/05/16/zookeeper1/" data-title="ZooKeeper怎么玩之一：为什么需要ZK | 葛一凡" data-tsina="null" class="share clearfix">
-	  </div>
-	
-	</div>
 
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/05/16/zookeeper1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/05/16/zookeeper1/" data-count-type="comments">&nbsp;</a>
+	
+</div>
 
 </footer>
 
-   	       
-	</article>
-	
-<nav class="article-nav clearfix">
- 
- <div class="prev" >
- <a href="/2015/06/14/zookeeper2/" title="ZooKeeper怎么玩之二：ZK不是万能的">
-  <strong>上一篇：</strong><br/>
-  <span>
-  ZooKeeper怎么玩之二：ZK不是万能的</span>
-</a>
+
+    </article>
+
+
+
+
+
+
+
+  <nav id="page-nav" class="clearfix">
+    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
+
 </div>
-
-
-</nav>
-
-	
-<section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2015/05/16/zookeeper1/" data-title="ZooKeeper怎么玩之一：为什么需要ZK" data-url="http://geyifan.cn/2015/05/16/zookeeper1/"></div>
-</section>
-
-
-</div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
-
-  <div id="toc" class="toc-aside">
-  <strong class="toc-title">文章目录</strong>
- 
- <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ZooKeeper是什么"><span class="toc-number">1.</span> <span class="toc-text">ZooKeeper是什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式环境下遇到的问题"><span class="toc-number">2.</span> <span class="toc-text">分布式环境下遇到的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有ZooKeeper之前的世界是什么样子"><span class="toc-number">3.</span> <span class="toc-text">没有ZooKeeper之前的世界是什么样子</span></a></li></ol>
- 
-  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -448,69 +405,12 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
-      
-      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
 });
 </script>
 
-<script type="text/javascript">
-$(document).ready(function(){ 
-  var ai = $('.article-content>iframe'),
-      ae = $('.article-content>embed'),
-      t  = $('#toc'),
-      ta = $('#toc.toc-aside'),
-      o  = $('.openaside'),
-      c  = $('.closeaside');
-  if(ai.length>0){
-    ai.wrap('<div class="video-container" />');
-  };
-  if(ae.length>0){
-   ae.wrap('<div class="video-container" />');
-  };
-  c.click(function(){
-    ta.css('display', 'block').addClass('fadeIn');
-  });
-  o.click(function(){
-    ta.css('display', 'none');
-  });
-  $(window).scroll(function(){
-    ta.css("top",Math.max(140,320-$(this).scrollTop()));
-  });
-});
-</script>
-
-
-<script type="text/javascript">
-$(document).ready(function(){ 
-  var $this = $('.share'),
-      url = $this.attr('data-url'),
-      encodedUrl = encodeURIComponent(url),
-      title = $this.attr('data-title'),
-      tsina = $this.attr('data-tsina'),
-      description = $this.attr('description');
-  var html = [
-  '<a href="#" class="overlay" id="qrcode"></a>',
-  '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#nothing"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
-  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
-  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
-  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
-  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
-  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
-  '<span title="Share to"></span>'
-  ].join('');
-  $this.append(html);
-  $('.article-share-qrcode').click(function(){
-    var imgSrc = $('#qrcode-pic').attr('data-src');
-    $('#qrcode-pic').attr('src', imgSrc);
-    $('#qrcode-pic').load(function(){
-        $('.qrcode strong').text(' ');
-    });
-  });
-});     
-</script>
 
 
 
@@ -588,4 +488,4 @@ document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3
 <!-- Tiny_search End -->
 
   </body>
-</html>
+ </html>

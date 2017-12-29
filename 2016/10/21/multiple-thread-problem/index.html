@@ -106,7 +106,7 @@
 		
 		</div>
 		
-		<p><img src="/img/problem.jpg" width="300" class="img-topic"><br>终于又回到了JAVA，如果你看先前的<a href="http://geyifan.cn/2016/10/10/why-choose-concurrent/" target="_blank" rel="external">为什么我们要考虑并发</a>文章，经过一系列思考后仍然要加入到多线程阵营的话，抱歉，我可能又要给你泼冷水了。<br><a id="more"></a></p>
+		<p><img src="/img/problem.jpg" width="300" class="img-topic"><br>终于又回到了JAVA，如果你看先前的<a href="http://geyifan.cn/2016/10/10/why-choose-concurrent/">为什么我们要考虑并发</a>文章，经过一系列思考后仍然要加入到多线程阵营的话，抱歉，我可能又要给你泼冷水了。<br><a id="more"></a></p>
 <h2 id="很难编写一个线程安全的程序"><a href="#很难编写一个线程安全的程序" class="headerlink" title="很难编写一个线程安全的程序"></a>很难编写一个线程安全的程序</h2><p>线程安全从现象上来描述是在多线程环境中运行结果和单线程运行结果一致。那怎么做到线程安全呢？第一选择避免共享资源，如果避免不了使用共享资源，那么就要保证共享资源的原子性和一致性。</p>
 <p>但是在编写代码的时候，是很难做到在多线程中不使用共享资源，而多线程见对共享资源的控制难度比较大。其实Java提供了了最简单的解决并发的方式，性能还不错，就是synchronized，但是这个太简单了，带来的问题就是无法灵活地操作这把锁，比如设置锁的超时时间，立即释放锁，无法通信。有了Lock，Java并发的世界打开了一个新的视角，要编写一个正确的线程安全的程序，对于高手来说也是一项挑战。</p>
 <h2 id="调试困难"><a href="#调试困难" class="headerlink" title="调试困难"></a>调试困难</h2><p>由于线程执行顺序的不可预知和随机性，多线程的程序难以调试，难以重现。“你的提这个BUG，我重现不了”，这句话是不是很熟悉呢？Java采用抢占式方式对线程进行调度，在这种调度下，有些线程由于CPU分配的时间片较多会执行的时间很长，而有些线程抢占不到CPU的时间片得不到执行。<br>除了抢占式调度还有协同式调度，协同式调度是线程执行完后主动通知系统切换到其他线程上，从实现上来说协同式调度很简单，不需要线程同步。缺点是一个线程有问题，就会阻塞到那里，因此Java采用了抢占式调度。</p>
@@ -224,7 +224,7 @@
 		  
 		
 		  
-			<li><a href="/categories/感悟/" title="感悟">感悟<sup>3</sup></a></li>
+			<li><a href="/categories/感悟/" title="感悟">感悟<sup>4</sup></a></li>
 		  
 		
 		  
@@ -245,11 +245,27 @@
 			
 		
 			
+				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/分布式/" title="分布式">分布式<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/一致性/" title="一致性">一致性<sup>3</sup></a></li>
+				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
 			
 		
 			
@@ -258,22 +274,6 @@
 		
 			
 				<li><a href="/tags/并发/" title="并发">并发<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/唤醒/" title="唤醒">唤醒<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/感悟/" title="感悟">感悟<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/ZooKeeper/" title="ZooKeeper">ZooKeeper<sup>2</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/监视器/" title="监视器">监视器<sup>2</sup></a></li>
 			
 		
 			
@@ -305,19 +305,19 @@
 			
 		
 			
-				<li><a href="/tags/AQS/" title="AQS">AQS<sup>2</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/阻塞/" title="阻塞">阻塞<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/同步/" title="同步">同步<sup>2</sup></a></li>
+				<li><a href="/tags/唤醒/" title="唤醒">唤醒<sup>2</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/不适用/" title="不适用">不适用<sup>1</sup></a></li>
+				<li><a href="/tags/AQS/" title="AQS">AQS<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/root/" title="root">root<sup>1</sup></a></li>
 			
 		
 		</ul>

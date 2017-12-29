@@ -4,25 +4,25 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>ZooKeeper怎么玩之一：为什么需要ZK | 葛一凡</title>
+    <title>回望2017 | 葛一凡</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="葛一凡">
     
 
     
-    <meta name="description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
+    <meta name="description" content="2016的总结依稀还是昨天，2018已经悄悄地走来。这一年我做了哪些？加入了一个大平台，跨进了忙碌的工作状态，缺少了思考，缺少了对家人的关注，站在2018年门前回望发现自己失去了很多。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ZooKeeper怎么玩之一：为什么需要ZK">
-<meta property="og:url" content="http://geyifan.cn/2015/05/16/zookeeper1/index.html">
+<meta property="og:title" content="回望2017">
+<meta property="og:url" content="http://geyifan.cn/2017/12/30/new-year-2018/index.html">
 <meta property="og:site_name" content="葛一凡">
-<meta property="og:description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
-<meta property="og:image" content="http://geyifan.cn/img/zookeeper1.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:description" content="2016的总结依稀还是昨天，2018已经悄悄地走来。这一年我做了哪些？加入了一个大平台，跨进了忙碌的工作状态，缺少了思考，缺少了对家人的关注，站在2018年门前回望发现自己失去了很多。">
+<meta property="og:image" content="http://geyifan.cn/img/choice.jpg">
+<meta property="og:updated_time" content="2017-12-29T16:56:15.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ZooKeeper怎么玩之一：为什么需要ZK">
-<meta name="twitter:description" content="学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。">
-<meta name="twitter:image" content="http://geyifan.cn/img/zookeeper1.png">
+<meta name="twitter:title" content="回望2017">
+<meta name="twitter:description" content="2016的总结依稀还是昨天，2018已经悄悄地走来。这一年我做了哪些？加入了一个大平台，跨进了忙碌的工作状态，缺少了思考，缺少了对家人的关注，站在2018年门前回望发现自己失去了很多。">
+<meta name="twitter:image" content="http://geyifan.cn/img/choice.jpg">
 
     
     <link rel="alternative" href="/atom.xml" title="葛一凡" type="application/atom+xml">
@@ -82,14 +82,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/05/16/zookeeper1/" title="ZooKeeper怎么玩之一：为什么需要ZK" itemprop="url">ZooKeeper怎么玩之一：为什么需要ZK</a>
+      <a href="/2017/12/30/new-year-2018/" title="回望2017" itemprop="url">回望2017</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="葛一凡" target="_blank" itemprop="author">葛一凡</a>
 		
   <p class="article-time">
-    <time datetime="2015-05-16T13:05:44.000Z" itemprop="datePublished"> 发表于 2015-05-16</time>
+    <time datetime="2017-12-29T16:46:50.000Z" itemprop="datePublished"> 发表于 2017-12-30</time>
     
   </p>
   <p class="article-hits" id="busuanzi_container_page_pv">阅读次数 <span id="busuanzi_value_page_pv"></span>
@@ -102,33 +102,25 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ZooKeeper是什么"><span class="toc-number">1.</span> <span class="toc-text">ZooKeeper是什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式环境下遇到的问题"><span class="toc-number">2.</span> <span class="toc-text">分布式环境下遇到的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有ZooKeeper之前的世界是什么样子"><span class="toc-number">3.</span> <span class="toc-text">没有ZooKeeper之前的世界是什么样子</span></a></li></ol>
+			
 		
 		</div>
 		
-		<p><img src="/img/zookeeper1.png" width="400" height="400" class="img-topic"><br><!-- ![Alt text](/img/zookeeper1.png "zookeeper") --></p>
-<p>学习新东西首先需要搞清楚为什么学它，这是符合我们的一个认知过程。<br><a id="more"></a></p>
-<h1 id="ZooKeeper是什么"><a href="#ZooKeeper是什么" class="headerlink" title="ZooKeeper是什么"></a>ZooKeeper是什么</h1><p>ZooKeeper是一个分布式协调服务，它致力去解决如何在分布式环境下保持数据一致性的问题。</p>
-<h1 id="分布式环境下遇到的问题"><a href="#分布式环境下遇到的问题" class="headerlink" title="分布式环境下遇到的问题"></a>分布式环境下遇到的问题</h1><p>共享的资源在并发的情况下会出现竞争，在线程间可以使用Java提供的锁机制来协调这些资源，那么在分布式的环境下，如何来协调这些资源呢？</p>
-<p>如何协调分布式环境下的资源，首先应该明确由单机环境转到分布式环境下遇到了什么问题？</p>
+		<p><img src="/img/choice.jpg" height="400" class="img-topic"><br>2016的总结依稀还是昨天，2018已经悄悄地走来。这一年我做了哪些？加入了一个大平台，跨进了忙碌的工作状态，缺少了思考，缺少了对家人的关注，站在2018年门前回望发现自己失去了很多。<br><a id="more"></a></p>
+<p>2018年计划呢？</p>
 <ol>
-<li><p><strong>分布式环境下无法保证顺序</strong>。</p>
-<p> 在单机环境如果想让A先执行，B后执行，先调用A后调用B就可以了；由于网络是不可靠的，分布式环境中则不同，在网络延迟的情况下A可能比B执行要晚。</p>
-</li>
-<li><p><strong>分布式环境下无法明确执行结果</strong>。</p>
-<p> 单机中调用A成功和失败很明确；而在分布式环境中，即使调用A执行成功了，而在网络传输中超时了，此时无法判断A是否执行成功了，需要通过重试的方式才能判断A有没有执行成功。</p>
-</li>
-<li><p><strong>分布式环境下无法保证数据一致性</strong>。</p>
-<p> 分布式环境如果很多台服务器提供相同的服务，如何保证服务的某一个改动要么同时生效，要么失败，是分布式和单机环境的最重要的区别。</p>
-</li>
+<li>不让自己忙碌</li>
+<li>多思考，多思考</li>
+<li>技术主题系统化、全面化</li>
+<li>遇到问题多总结</li>
+<li>去浮躁</li>
 </ol>
-<h1 id="没有ZooKeeper之前的世界是什么样子"><a href="#没有ZooKeeper之前的世界是什么样子" class="headerlink" title="没有ZooKeeper之前的世界是什么样子"></a>没有ZooKeeper之前的世界是什么样子</h1><ol>
-<li><p><strong>保证事务顺序一致性</strong>。</p>
-<p> 如果事务A在一台服务器上优先于事务B先执行，则在所有的服务器上事务A都将优先于事务B执行。由于网络是不可靠的，如果没有ZooKeeper如何保证在所有服务器上事务顺序一致将是一个很复杂的问题，而ZooKeeper使我们专注于业务逻辑，而不用过分关注于分布式协调。</p>
-</li>
-<li><p><strong>保证单调一致性</strong>。</p>
-<p> 单调一致性是最终一致性的变种。在任何情况下，用户一旦读到某个数据的某次更新后的值，就不会再读到比这个值更旧的值了。</p>
-</li>
+<p>具体事情呢？</p>
+<ol>
+<li>API网关业界研究，写出博客</li>
+<li>高流量场景下的应对策略</li>
+<li>JVM 十二篇</li>
+<li>算法：树、图和《编程之法》</li>
 </ol>
   
 	</div>
@@ -137,13 +129,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/ZooKeeper怎么玩/">ZooKeeper怎么玩</a>
+  <a class="article-category-link" href="/categories/感悟/">感悟</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/分布式/">分布式</a><a href="/tags/ZooKeeper/">ZooKeeper</a><a href="/tags/致力目标/">致力目标</a>
+  <span></span> <a href="/tags/2018/">2018</a><a href="/tags/思考/">思考</a>
   </div>
 
 </div>
@@ -152,7 +144,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://geyifan.cn/2015/05/16/zookeeper1/" data-title="ZooKeeper怎么玩之一：为什么需要ZK | 葛一凡" data-tsina="null" class="share clearfix">
+	  <div data-url="http://geyifan.cn/2017/12/30/new-year-2018/" data-title="回望2017 | 葛一凡" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -165,20 +157,20 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2015/06/14/zookeeper2/" title="ZooKeeper怎么玩之二：ZK不是万能的">
-  <strong>上一篇：</strong><br/>
-  <span>
-  ZooKeeper怎么玩之二：ZK不是万能的</span>
+
+<div class="next">
+<a href="/2017/03/26/understand-condition/"  title="理解条件等待Condition">
+ <strong>下一篇：</strong><br/> 
+ <span>理解条件等待Condition
+</span>
 </a>
 </div>
-
 
 </nav>
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2015/05/16/zookeeper1/" data-title="ZooKeeper怎么玩之一：为什么需要ZK" data-url="http://geyifan.cn/2015/05/16/zookeeper1/"></div>
+	<div class="ds-thread" data-thread-key="2017/12/30/new-year-2018/" data-title="回望2017" data-url="http://geyifan.cn/2017/12/30/new-year-2018/"></div>
 </section>
 
 
@@ -188,7 +180,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ZooKeeper是什么"><span class="toc-number">1.</span> <span class="toc-text">ZooKeeper是什么</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#分布式环境下遇到的问题"><span class="toc-number">2.</span> <span class="toc-text">分布式环境下遇到的问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有ZooKeeper之前的世界是什么样子"><span class="toc-number">3.</span> <span class="toc-text">没有ZooKeeper之前的世界是什么样子</span></a></li></ol>
+ 
  
   </div>
 
