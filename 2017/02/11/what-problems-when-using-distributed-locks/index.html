@@ -18,8 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="工作中经常会遇到争抢共享资源的场景，比如用户抢购秒杀商品，如果不对商品库存进行保护，可能会造成超卖的情况。超卖现象在售卖火车票的场景下更加明显，两个人购买到同一天同一辆列车，相同座位的情况是不允许出现的。交易系统中的退款同样如此，由于网络延迟和重复提交极端时间差的情况下，可能会造成同一个用户重复的退款请求。以上无论是超卖，还是重复退款，都是没有对需要保护的资源或业务进行完善的保护而造成的，从设计方">
 <meta property="og:image" content="http://geyifan.cn/img/distributed-locks.png">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2017-03-10T05:46:14.000Z">
+<meta property="og:updated_time" content="2019-07-04T16:40:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用分布式锁时考虑哪些问题">
 <meta name="twitter:description" content="工作中经常会遇到争抢共享资源的场景，比如用户抢购秒杀商品，如果不对商品库存进行保护，可能会造成超卖的情况。超卖现象在售卖火车票的场景下更加明显，两个人购买到同一天同一辆列车，相同座位的情况是不允许出现的。交易系统中的退款同样如此，由于网络延迟和重复提交极端时间差的情况下，可能会造成同一个用户重复的退款请求。以上无论是超卖，还是重复退款，都是没有对需要保护的资源或业务进行完善的保护而造成的，从设计方">
@@ -113,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-what-problems-when-using-distributed-locks" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/distributed-locks.png" rel="gallery_cjxowc21o0026yesz0n7qyngr">
+        <img src="/img/distributed-locks.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -142,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/distributed-locks.png" width="300" class="img-topic"><br>工作中经常会遇到争抢共享资源的场景，比如用户抢购秒杀商品，如果不对商品库存进行保护，可能会造成超卖的情况。超卖现象在售卖火车票的场景下更加明显，两个人购买到同一天同一辆列车，相同座位的情况是不允许出现的。交易系统中的退款同样如此，由于网络延迟和重复提交极端时间差的情况下，可能会造成同一个用户重复的退款请求。以上无论是超卖，还是重复退款，都是没有对需要保护的资源或业务进行完善的保护而造成的，从设计方面一定要避免这种情况的发生。<br><a id="more"></a></p>
+        <p>工作中经常会遇到争抢共享资源的场景，比如用户抢购秒杀商品，如果不对商品库存进行保护，可能会造成超卖的情况。超卖现象在售卖火车票的场景下更加明显，两个人购买到同一天同一辆列车，相同座位的情况是不允许出现的。交易系统中的退款同样如此，由于网络延迟和重复提交极端时间差的情况下，可能会造成同一个用户重复的退款请求。以上无论是超卖，还是重复退款，都是没有对需要保护的资源或业务进行完善的保护而造成的，从设计方面一定要避免这种情况的发生。<br><a id="more"></a></p>
 <p>本文以退款交易场景入手，引入分布式锁，尝试分析分布式锁需要考虑关注点，包括以下内容：</p>
 <ul>
 <li>锁的引入和局限性</li>

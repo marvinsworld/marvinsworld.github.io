@@ -196,8 +196,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2017/03/26/understand-condition/"><img src="/img/condition-queues.jpeg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           Condtion也被称为条件队列（condition queues）或者条件变量（condition variables），是利用线程间共享的全局变量进行同步的一种机制。主要包括两个动作：一个线程等待“条件谓词成立”而挂起；另一个线程使“条件谓词成立”，发出条件成立信号。由于对共享状态信息的访问发生在多线程中，因此条件变量的使用是需要结合锁机制的（一般是互斥锁）。也就是说，一个线程要等到临界区的共享数据达到某种状态时再进行某种操作，而这个状态的成立，则是由另外一个线程来完成后发送信号来通知的。
 
@@ -316,8 +317,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2017/02/11/what-problems-when-using-distributed-locks/"><img src="/img/distributed-locks.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           工作中经常会遇到争抢共享资源的场景，比如用户抢购秒杀商品，如果不对商品库存进行保护，可能会造成超卖的情况。超卖现象在售卖火车票的场景下更加明显，两个人购买到同一天同一辆列车，相同座位的情况是不允许出现的。交易系统中的退款同样如此，由于网络延迟和重复提交极端时间差的情况下，可能会造成同一个用户重复的退款请求。以上无论是超卖，还是重复退款，都是没有对需要保护的资源或业务进行完善的保护而造成的，从设计方面一定要避免这种情况的发生。
 
@@ -829,7 +831,10 @@
           <li class="clearfix">
 
             
-              <div class="widget-entry-summary" style="margin: 0;">
+              <div class="widget-entry-thumbnail">
+                <a href="/2017/03/26/understand-condition/" title=""><img width="50" height="50" src="/img/condition-queues.jpeg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
             
 
               <h6 style="margin: 0;"><a href="/2017/03/26/understand-condition/">理解条件等待Condition</a></h6>
@@ -853,7 +858,10 @@
           <li class="clearfix">
 
             
-              <div class="widget-entry-summary" style="margin: 0;">
+              <div class="widget-entry-thumbnail">
+                <a href="/2017/02/11/what-problems-when-using-distributed-locks/" title=""><img width="50" height="50" src="/img/distributed-locks.png" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
             
 
               <h6 style="margin: 0;"><a href="/2017/02/11/what-problems-when-using-distributed-locks/">使用分布式锁时考虑哪些问题</a></h6>
