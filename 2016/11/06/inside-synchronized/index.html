@@ -18,10 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="synchronized既保证原子性，又保证内存可见性，是一种线程同步的方式，是锁机制的一种java实现。synchronized的实现基于JVM底层，JVM是基于monitor实现的，而monitor的实现依赖于操作系统的互斥实现。">
 <meta property="og:image" content="http://geyifan.cn/img/synchronized-pause.png">
-<meta property="og:image" content="http://geyifan.cn/img/synchronized-lock-upgrade.png">
-<meta property="og:image" content="http://geyifan.cn/img/synchronized-markword.png">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:09:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重新认识synchronized（下）">
 <meta name="twitter:description" content="synchronized既保证原子性，又保证内存可见性，是一种线程同步的方式，是锁机制的一种java实现。synchronized的实现基于JVM底层，JVM是基于monitor实现的，而monitor的实现依赖于操作系统的互斥实现。">
@@ -115,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-inside-synchronized" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/synchronized-pause.png" rel="gallery_cjxoua37b001egosziysycmpz">
+        <img src="/img/synchronized-pause.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -144,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/synchronized-pause.png" width="300" class="img-topic"><br>synchronized既保证原子性，又保证内存可见性，是一种线程同步的方式，是锁机制的一种java实现。synchronized的实现基于JVM底层，JVM是基于monitor实现的，而monitor的实现依赖于操作系统的互斥实现。<br><a id="more"></a></p>
+        <p>synchronized既保证原子性，又保证内存可见性，是一种线程同步的方式，是锁机制的一种java实现。synchronized的实现基于JVM底层，JVM是基于monitor实现的，而monitor的实现依赖于操作系统的互斥实现。<br><a id="more"></a></p>
 <h2 id="语义"><a href="#语义" class="headerlink" title="语义"></a>语义</h2><p>synchronized语义是同步，但同步有两层含义：</p>
 <ol>
 <li>互斥，即锁的特点。同一时间只能有一个线程持有监视器，因此一旦线程进入监视器保护的代码块（即临界区），其他线程是不允许监视器保护的代码块，直到前一个线程退出代码块。互斥阻止了其他线程看到对象不一致的状态，与原子性有相同的语义。</li>

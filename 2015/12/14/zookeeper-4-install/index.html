@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.">
 <meta property="og:image" content="http://geyifan.cn/img/zk_install.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:18:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper怎么玩之四：ZK的部署">
 <meta name="twitter:description" content="ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.">
@@ -110,6 +110,16 @@
           <section id="main" style="float:none;"><article id="post-zookeeper-4-install" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/zk_install.png" rel="gallery_cjxoua36j0005goszjhggf6p4">
+        <img src="/img/zk_install.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -139,7 +149,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/zk_install.png" width="250" height="250" class="img-topic"><br>ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.<br><a id="more"></a></p>
+        <p>ZooKeeper有两种部署方式:集群模式和单机模式.集群模式一般用于生产环境,对系统的可用性要求较高,不会因为单点故障而导致整个系统不可用.而单机模式是ZooKeeper的最低要求,仅供平时测试,开发时使用.<br><a id="more"></a></p>
 <h1 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h1><p>首先需要准备<strong>至少三台</strong>服务器来搭建ZooKeeper集群,为什么至少三台服务器呢?参见<a href="#为什么推荐部署ZooKeeper的机器是奇数呢" title="为什么">为什么推荐部署ZooKeeper的机器是奇数呢</a>.</p>
 <ol>
 <li>准备java运行环境,安装JDK6或更高版本.(因为ZooKeeper是由java语言编写的)</li>

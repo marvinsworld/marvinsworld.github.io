@@ -18,9 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。">
 <meta property="og:image" content="http://geyifan.cn/img/volatile-visible.png">
-<meta property="og:image" content="http://geyifan.cn/img/volatile-jmm.png">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:07:59.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="volatile语义">
 <meta name="twitter:description" content="volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。">
@@ -114,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-volatile-explain" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/volatile-visible.png" rel="gallery_cjxoua37f001jgoszcyqiz1mg">
+        <img src="/img/volatile-visible.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -143,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/volatile-visible.png" width="300" class="img-topic"><br>volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。<br><a id="more"></a></p>
+        <p>volatile在Java内存模型（JMM）中，保证共享变量对所有线程可见，但不保证原子性。volatile语义是同步，通过共享变量的方式，完成线程间的通信。<br><a id="more"></a></p>
 <h2 id="为什么需要volatile"><a href="#为什么需要volatile" class="headerlink" title="为什么需要volatile"></a>为什么需要volatile</h2><p>Java内存模型中抽象、简化了计算机物理设备，分成工作内存和主内存，线程有各自的工作内存，却共享主内存。如果要把Java内存模型与物理设备映射起来的话，L1，L2 Cache可以视为工作内存，而L3 Cache视为主内存。线程执行指令时，会优先选择距离 CPU 较近的位置的工作内存中使用，而不会从读写速度较慢的主内存中，我称之为“就近原则”。当线程指令执行完后，赋值给工作内存，如果不回写到主内存，或者通知其他线程，其他线程是无法知晓变量已经修改，仍然会使用曾经缓存在工作内存中的变量，这就造成了缓存不一致的问题，Java使用volatile解决这种问题。<strong>volatile保证指令赋值完后的变量立即同步回主内存中，声明并通知其他线程当前赋值的变量已经失效，其他线程在下次使用时会放弃工作内存中变量，使用主内存中的变量。</strong>这样就完成了线程间对于volatile修饰的变量的通信。</p>
 <h2 id="可见性"><a href="#可见性" class="headerlink" title="可见性"></a>可见性</h2><p>执行引擎只与工作内存交互，再有工作内存与主内存交互。站在执行引擎的角度，与工作内存操作完成即表示指令执行完，但是什么时候工作内存会将结果刷新回主内存却不可预测。Java线程间的通信是通过共享内存的方式，线程A如果想通知其他所有线程（线程B，线程C）对于变量f的变化情况，需要满足两点：</p>
 <ol>

@@ -18,8 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等）">
 <meta property="og:image" content="http://geyifan.cn/img/synchronization.png">
-<meta property="og:image" content="http://geyifan.cn/img/java-monitor.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:09:46.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="重新认识synchronized（上）">
 <meta name="twitter:description" content="synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等）">
@@ -113,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-re-recognized-synchronized" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/synchronization.png" rel="gallery_cjxoua379001agosz16ic85ux">
+        <img src="/img/synchronization.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -142,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/synchronization.png" width="300" class="img-topic"><br>synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。<br><a id="more"></a></p>
+        <p>synchronized在JDK5之前一直被称为重量级锁，是一个较为鸡肋的设计，而在JDK6对synchronized内在机制进行了大量显著的优化，加入了CAS，轻量级锁和偏向锁的功能，性能上已经跟ReentrantLock相差无几，而且synchronized在使用上更加简单，不易出错（避免哲学家就餐问题造成的死锁），因此如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。<br><a id="more"></a></p>
 <h2 id="1-synchronized用法"><a href="#1-synchronized用法" class="headerlink" title="1.synchronized用法"></a>1.synchronized用法</h2><p>synchronized有同步方法和同步语句块两种形式，分锁定对象和作用域两个维度，当锁定的对象进入作用域时，互斥才会生效。<strong>一个线程访问拥有相同锁定对象时，进入作用域时必须以串行方式进行</strong>。修饰的对象有：修饰普通方法（又称为同步方法），修饰静态方法，修饰对象实例，修饰class literals（类名称字面常量）。</p>
 <h3 id="1-1-修饰普通方法"><a href="#1-1-修饰普通方法" class="headerlink" title="1.1.修饰普通方法"></a>1.1.修饰普通方法</h3><p>又称同步方法，锁定的是调用这个同步方法对象。一个线程访问实例对象中的synchronized代码块时，其他试图访问<strong>该对象synchronized修饰的区域</strong>的线程将阻塞。同一个对象共享一把锁，同一时间只能有一个synchronized区域可以获得锁，可以称为<strong>对象锁</strong>。需要注意两点：（1）作用只会在同一个实例上，（2）对象中的所有synchronized修饰的区域。例如：对于fooA对象，线程t1，t2访问methodA是互斥的，线程t1，t2分别访问methodA，methodB同样是互斥的；当访问methodA时，methodB 不可以访问，methodC可以访问。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//TODO</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">methodB</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//TODO</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodC</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//TODO</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        Foo fooA = <span class="keyword">new</span> Foo();</div><div class="line">        Foo fooB = <span class="keyword">new</span> Foo();</div><div class="line"></div><div class="line">        Thread t1 = <span class="keyword">new</span> Thread(fooA, <span class="string">"t1"</span>);</div><div class="line">        Thread t2 = <span class="keyword">new</span> Thread(fooB, <span class="string">"t2"</span>);</div><div class="line">        t1.start();</div><div class="line">        t2.start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h3 id="1-2-修饰静态方法"><a href="#1-2-修饰静态方法" class="headerlink" title="1.2.修饰静态方法"></a>1.2.修饰静态方法</h3><p>锁定是静态方法所属的类，此时该类共用一把锁，可以称为<strong>类锁</strong>。一个线程访问synchronized静态方法时，其他试图访问<strong>该类synchronized修饰的区域</strong>的线程都将阻塞，而非synchronized修饰的区域不会阻塞。修饰静态方法是修饰普通方法的变种版，前者锁定该类（跟对象没关系），后者指锁定当前对象。例如：线程t1，t2分别访问methodA，methodB同样是互斥的。</p>

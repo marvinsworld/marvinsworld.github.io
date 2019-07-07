@@ -18,7 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="事务是一个高度抽象的概念。事务要解决的问题是如何使多次操作，对外部看起来是一个整体的操作。理想的事务是一把锁，把一个一个的事务按照队列一样排列，不过这样性能我们无法接受，因此引入了引入了MVCC (Multi-Version Concurrency Control) 的概念，MVCC本质是copy-on-write。事务的本质是什么？事务=锁+MVCC">
 <meta property="og:image" content="http://geyifan.cn/img/transaction-lock.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:15:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="事务隔离级别浅析">
 <meta name="twitter:description" content="事务是一个高度抽象的概念。事务要解决的问题是如何使多次操作，对外部看起来是一个整体的操作。理想的事务是一把锁，把一个一个的事务按照队列一样排列，不过这样性能我们无法接受，因此引入了引入了MVCC (Multi-Version Concurrency Control) 的概念，MVCC本质是copy-on-write。事务的本质是什么？事务=锁+MVCC">
@@ -112,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-talk-about-transaction" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/transaction-lock.png" rel="gallery_cjxoua371000vgosz024as6h0">
+        <img src="/img/transaction-lock.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -141,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/transaction-lock.png" width="300" class="img-topic"><br>事务是一个高度抽象的概念。事务要解决的问题是如何使多次操作，对外部看起来是一个整体的操作。理想的事务是一把锁，把一个一个的事务按照队列一样排列，不过这样性能我们无法接受，因此引入了引入了MVCC (Multi-Version Concurrency Control) 的概念，MVCC本质是copy-on-write。事务的本质是什么？事务=锁+MVCC<br><a id="more"></a></p>
+        <p>事务是一个高度抽象的概念。事务要解决的问题是如何使多次操作，对外部看起来是一个整体的操作。理想的事务是一把锁，把一个一个的事务按照队列一样排列，不过这样性能我们无法接受，因此引入了引入了MVCC (Multi-Version Concurrency Control) 的概念，MVCC本质是copy-on-write。事务的本质是什么？事务=锁+MVCC<br><a id="more"></a></p>
 <h2 id="怎么理解一致性"><a href="#怎么理解一致性" class="headerlink" title="怎么理解一致性"></a>怎么理解一致性</h2><p>一致性是指数据处于一种语义上的有意义且正确的状态。一致性是对数据可见性的约束，保证在一个事务中的多次操作的数据中间状态对其他事务不可见的。因为这些中间状态，是一个过渡状态，与事务的开始状态和事务的结束状态是不一致的。<br>举个栗子，张三给李四转账100元。事务要做的是从张三账户上减掉100元，李四账户上加上100元。一致性的含义是其他事务要么看到张三还没有给李四转账的状态，要么张三已经成功转账给李四的状态，而对于张三少了100元，李四还没加上100元这个中间状态是不可见的。<br>那么反驳的声音来了：</p>
 <ol>
 <li>要么转账操作全部成功，要么全部失败，这是原子性。从例子上看全部成功，那么一致性就是原子性的一部分咯，为什么还要单独说一致性和原子性？</li>

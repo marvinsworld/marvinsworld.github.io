@@ -18,7 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。">
 <meta property="og:image" content="http://geyifan.cn/img/aqs-puzzle-piece.png">
-<meta property="og:updated_time" content="2017-03-18T14:22:53.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:03:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="AQS漫谈">
 <meta name="twitter:description" content="AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。">
@@ -112,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-talk-about-aqs" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/aqs-puzzle-piece.png" rel="gallery_cjxoua37j001rgoszhmbiaj5d">
+        <img src="/img/aqs-puzzle-piece.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -141,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/aqs-puzzle-piece.png" width="300" class="img-topic"><br>AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。<br><a id="more"></a></p>
+        <p>AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。<br><a id="more"></a></p>
 <p>本文从AQS的组件Condition和LockSupport入手，一步一步地去拨开AQS的外衣，在深入的过程中会把在学习AQS过程中的疑问一一解答，也许你同样有的这样的疑问，包括以下内容：</p>
 <ul>
 <li>LockSupport</li>

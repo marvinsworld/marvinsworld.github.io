@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="前面讲了了那么多,还没正式说如何通过命令查看zookeeper的节点和详细内容,so,这次言简意赅的说一下,zookeeper的命令也非常简单">
 <meta property="og:image" content="http://geyifan.cn/img/zk_cmd.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:18:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper怎么玩之六：常用命令">
 <meta name="twitter:description" content="前面讲了了那么多,还没正式说如何通过命令查看zookeeper的节点和详细内容,so,这次言简意赅的说一下,zookeeper的命令也非常简单">
@@ -110,6 +110,16 @@
           <section id="main" style="float:none;"><article id="post-zookeeper-6-command" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/zk_cmd.jpg" rel="gallery_cjxoua36p000bgoszh07og0s6">
+        <img src="/img/zk_cmd.jpg" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -139,7 +149,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/zk_cmd.jpg" class="img-topic"><br>前面讲了了那么多,还没正式说如何通过命令查看zookeeper的节点和详细内容,so,这次言简意赅的说一下,zookeeper的命令也非常简单<br><a id="more"></a></p>
+        <p>前面讲了了那么多,还没正式说如何通过命令查看zookeeper的节点和详细内容,so,这次言简意赅的说一下,zookeeper的命令也非常简单<br><a id="more"></a></p>
 <h1 id="查看包含的内容"><a href="#查看包含的内容" class="headerlink" title="查看包含的内容"></a>查看包含的内容</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[zk: localhost:<span class="number">2181</span>(CONNECTED) <span class="number">0</span>] ls</div><div class="line">[zk: localhost:<span class="number">2181</span>(CONNECTED) <span class="number">1</span>] ls /</div><div class="line">[config-center, config, zookeeper]</div></pre></td></tr></table></figure>
 <h1 id="创建节点"><a href="#创建节点" class="headerlink" title="创建节点"></a>创建节点</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[zk: localhost:<span class="number">2181</span>(CONNECTED) <span class="number">2</span>] create /demo 测试</div><div class="line">Created /demo</div></pre></td></tr></table></figure>
 <h1 id="查看节点内容"><a href="#查看节点内容" class="headerlink" title="查看节点内容"></a>查看节点内容</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">[zk: localhost:<span class="number">2181</span>(CONNECTED) <span class="number">3</span>] get /demo</div><div class="line">测试</div><div class="line">cZxid = <span class="number">0x1a1</span></div><div class="line">ctime = Tue Apr <span class="number">12</span> <span class="number">17</span>:<span class="number">54</span>:<span class="number">45</span> CST <span class="number">2016</span></div><div class="line">mZxid = <span class="number">0x1a1</span></div><div class="line">mtime = Tue Apr <span class="number">12</span> <span class="number">17</span>:<span class="number">54</span>:<span class="number">45</span> CST <span class="number">2016</span></div><div class="line">pZxid = <span class="number">0x1a1</span></div><div class="line">cversion = <span class="number">0</span></div><div class="line">dataVersion = <span class="number">0</span></div><div class="line">aclVersion = <span class="number">0</span></div><div class="line">ephemeralOwner = <span class="number">0x0</span></div><div class="line">dataLength = <span class="number">6</span></div><div class="line">numChildren = <span class="number">0</span></div></pre></td></tr></table></figure>

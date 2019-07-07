@@ -257,8 +257,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2017/03/19/locksupport-utilities/"><img src="/img/utilities.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           LockSupport在JDK源码中描述为：构建锁和其他同步类的基本线程阻塞原语，构建更高级别的同步工具集。LockSupport提供的park/unpark从线程的粒度上进行阻塞和唤醒，park/unpark模型真正解耦了线程之间的同步，线程之间不再需要一个Object或者其它变量来存储状态。
 
@@ -378,8 +379,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2017/01/21/talk-about-aqs/"><img src="/img/aqs-puzzle-piece.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           AbstractQueuedSynchronizer简称AQS，字面上解释为抽象队列同步器。AQS是java.util.concurrent.locks的核心，也是Java并发包的基础，就像拼图游戏中的最后一片拼块。
 
@@ -438,8 +440,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2016/12/31/good-bye-2016/"><img src="/img/2016-road.jpg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           2016年就要过去了，我很怀念她。2015年7月加入了一家创业公司，被激情牵动，被希望点燃。已经过去半年多时间，为什么曾经激动的心情这么快就平复？而多了一些对过去无知的感叹，对未来憧憬的向往，庆幸有一群关系甚好的朋友一直陪伴，一直在包容我的激进和不足。感恩，感谢，感激。
 
@@ -498,8 +501,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2016/12/24/find-bug-online-skills/"><img src="/img/find-taolu.jpg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。
 
@@ -558,8 +562,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2016/12/17/btrace-details/"><img src="/img/btrace_dig.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           虽然Btrace很强大，但是在官方资料匮乏的情形下，很多功能都需要使用者去挖掘。推荐使用人如果有时间的话，研究官方一手资料或者源码，毕竟二手或多手资料与官方可能存在差异，本人也秉着大胆猜测，小心求证的原则，把已经证实的内容的细节列举一下，抛砖引玉。
 
@@ -618,8 +623,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2016/12/14/btrace-manual/"><img src="/img/btrace-diagnosis.jpg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。
 
@@ -678,8 +684,9 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-
-          
+          <div class="entry-thumbnail">
+            <a href="/2016/12/04/more-flexible-lock/"><img src="/img/lock.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
           <div class="entry-summary">
           Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。
 
@@ -846,7 +853,10 @@
           <li class="clearfix">
 
             
-              <div class="widget-entry-summary" style="margin: 0;">
+              <div class="widget-entry-thumbnail">
+                <a href="/2017/03/19/locksupport-utilities/" title=""><img width="50" height="50" src="/img/utilities.png" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
             
 
               <h6 style="margin: 0;"><a href="/2017/03/19/locksupport-utilities/">AQS阻塞唤醒工具LockSupport</a></h6>
@@ -873,7 +883,10 @@
           <li class="clearfix">
 
             
-              <div class="widget-entry-summary" style="margin: 0;">
+              <div class="widget-entry-thumbnail">
+                <a href="/2017/01/21/talk-about-aqs/" title=""><img width="50" height="50" src="/img/aqs-puzzle-piece.png" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
             
 
               <h6 style="margin: 0;"><a href="/2017/01/21/talk-about-aqs/">AQS漫谈</a></h6>
@@ -885,7 +898,10 @@
           <li class="clearfix">
 
             
-              <div class="widget-entry-summary" style="margin: 0;">
+              <div class="widget-entry-thumbnail">
+                <a href="/2016/12/31/good-bye-2016/" title=""><img width="50" height="50" src="/img/2016-road.jpg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
             
 
               <h6 style="margin: 0;"><a href="/2016/12/31/good-bye-2016/">2016拾遗</a></h6>

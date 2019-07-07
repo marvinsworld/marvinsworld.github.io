@@ -20,9 +20,7 @@
 <meta property="og:description" content="“很显然嘛，并发可以提升效率”
 我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。">
 <meta property="og:image" content="http://geyifan.cn/img/cpu.png">
-<meta property="og:image" content="http://geyifan.cn/img/cpu-context-switch.png">
-<meta property="og:image" content="http://geyifan.cn/img/context-switch.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:14:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="为什么我们要考虑并发">
 <meta name="twitter:description" content="“很显然嘛，并发可以提升效率”
@@ -117,6 +115,16 @@
           <section id="main" style="float:none;"><article id="post-why-choose-concurrent" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/cpu.png" rel="gallery_cjxoua373000zgosz213i73z0">
+        <img src="/img/cpu.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -146,7 +154,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/cpu.png" width="300" class="img-topic"><br>“很显然嘛，并发可以提升效率”</p>
+        <p>“很显然嘛，并发可以提升效率”</p>
 <p>我最初开始学习并发时，觉得原因显而易见，多线程执行肯定比单线程快，就像多个人一块干活要比一个人快。不过事实远比想象的要复杂，让我们把视角缩小到CPU级别，细致地观察一下多线程并发时，CPU在做什么。<br><a id="more"></a></p>
 <h2 id="CPU和I-O耗时"><a href="#CPU和I-O耗时" class="headerlink" title="CPU和I/O耗时"></a>CPU和I/O耗时</h2><p>CPU计算操作所需时间一般在纳秒级别，而I/O操作（包括内存、磁盘）所需时间差距很大，例如CPU一级缓存的响应时间在纳秒级别，而磁盘读取文件的响应时间在毫秒级别，前者较后者相比快5-6个数量级。CPU就像疾如闪电的快银（漫威动画），而磁盘是一个慢吞吞的蜗牛，这两位在一起工作，而且CPU必须I/O操作完成后才进行后续的操作，这对于CPU是一种煎熬，更是一种资源的巨大浪费。</p>
 <p>智慧的操作系统设计者已经想到这点了，适时引入了CPU上下文切换，提高资源的利用率，降低整体的响应时间，避免CPU这种宝贵且昂贵（对比一下你组装电脑时CPU的价格和内存条的价格）的资源浪费。</p>

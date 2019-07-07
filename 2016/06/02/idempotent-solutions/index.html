@@ -18,12 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="幂等概念来自数学，表示N次变换和1次变换的结果是相同的。这里讨论在某些场景下，客户端在调用服务没有达到预期结果时，会进行多次调用，为避免多次重复的调用对服务资源产生副作用，服务提供者会承诺满足幂等。">
 <meta property="og:image" content="http://geyifan.cn/img/solution.png">
-<meta property="og:image" content="http://geyifan.cn/img/version.jpg">
-<meta property="og:image" content="http://geyifan.cn/img/repeat_commit.png">
-<meta property="og:image" content="http://geyifan.cn/img/redis_lock.png">
-<meta property="og:image" content="http://geyifan.cn/img/token_lock.png">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:15:44.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="幂等策略分析">
 <meta name="twitter:description" content="幂等概念来自数学，表示N次变换和1次变换的结果是相同的。这里讨论在某些场景下，客户端在调用服务没有达到预期结果时，会进行多次调用，为避免多次重复的调用对服务资源产生副作用，服务提供者会承诺满足幂等。">
@@ -117,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-idempotent-solutions" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/solution.png" rel="gallery_cjxoua36x000ogoszz8l4gers">
+        <img src="/img/solution.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -146,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/solution.png" width="300" class="img-topic"><br>幂等概念来自数学，表示N次变换和1次变换的结果是相同的。这里讨论在某些场景下，客户端在调用服务没有达到预期结果时，会进行多次调用，为避免多次重复的调用对服务资源产生副作用，服务提供者会承诺满足幂等。<br><a id="more"></a></p>
+        <p>幂等概念来自数学，表示N次变换和1次变换的结果是相同的。这里讨论在某些场景下，客户端在调用服务没有达到预期结果时，会进行多次调用，为避免多次重复的调用对服务资源产生副作用，服务提供者会承诺满足幂等。<br><a id="more"></a></p>
 <p>举个栗子，双十一零点刚过，小明就迫不及待地点击提交订单按钮，选择在线支付，点了确认支付按钮，这时候网络有些慢，小明担心心爱的商品被抢购一空，就点了多次确认付款按钮，如果这个订单扣款多次，客服热线估计会被小明打爆。</p>
 <h2 id="什么是幂等性"><a href="#什么是幂等性" class="headerlink" title="什么是幂等性"></a>什么是幂等性</h2><p>HTTP/1.1中对幂等性的定义是：一次和多次请求某一个资源<strong>对于资源本身</strong>应该具有同样的副作用（网络超时等问题除外）。也就是说，<strong>其任意多次执行对资源本身所产生的影响均与一次执行的影响相同</strong>。</p>
 <blockquote>

@@ -18,8 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。">
 <meta property="og:image" content="http://geyifan.cn/img/btrace-diagnosis.jpg">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:07:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Btrace入门">
 <meta name="twitter:description" content="在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。">
@@ -113,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-btrace-manual" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/btrace-diagnosis.jpg" rel="gallery_cjxoua37i001qgoszb0nv44h5">
+        <img src="/img/btrace-diagnosis.jpg" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -142,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/btrace-diagnosis.jpg" width="300" class="img-topic"><br>在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。<br><a id="more"></a></p>
+        <p>在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。<br><a id="more"></a></p>
 <p>Btrace就是为解决这样的情形出现的。Btrace是一款动态查看程序运行细节的工具。无需修改应用代码（事实上它修改了字节码），程序无需任何多余依赖，无需重启。怎么说呢，Btrace就是线上的debug模式。Btrace官方已经迁移到github上，详见<a href="https://github.com/btraceio/btrace" target="_blank" rel="external">官网</a></p>
 <h2 id="能解决什么问题"><a href="#能解决什么问题" class="headerlink" title="能解决什么问题"></a>能解决什么问题</h2><p>Btrace被称为线上排查问题的神器，那么它适合在哪些场景下使用呢？</p>
 <ol>

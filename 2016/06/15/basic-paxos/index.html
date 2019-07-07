@@ -18,13 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
 <meta property="og:image" content="http://geyifan.cn/img/paxos.jpg">
-<meta property="og:image" content="http://geyifan.cn/img/serilied-consistency.png">
-<meta property="og:image" content="http://geyifan.cn/img/paxos-model.png">
-<meta property="og:image" content="http://geyifan.cn/img/paxos-prepare.png">
-<meta property="og:image" content="http://geyifan.cn/img/paxos-accept.png">
-<meta property="og:image" content="http://geyifan.cn/img/paxos-chosen.png">
-<meta property="og:image" content="http://geyifan.cn/img/paxos-broadcast.png">
-<meta property="og:updated_time" content="2017-03-10T05:46:14.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:15:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Basic Paxos算法">
 <meta name="twitter:description" content="Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。">
@@ -118,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-basic-paxos" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/paxos.jpg" rel="gallery_cjxoua370000tgosz8ac7anyq">
+        <img src="/img/paxos.jpg" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -147,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/paxos.jpg" width="600" height="150" class="img-topic"><br>Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。<br><a id="more"></a></p>
+        <p>Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。<br><a id="more"></a></p>
 <h1 id="Paxos特性"><a href="#Paxos特性" class="headerlink" title="Paxos特性"></a>Paxos特性</h1><p>在分布式系统中，一般会采用冗余副本的形式，保证高可用，防止因为宕机、网络等异常而造成系统的不可用。<strong>Paxos可以在分布式异常环境中（包括不超过额定数的节点宕机、网络异常等造成的消息延迟、丢失、重发等异常情况），快速正确地对某个数据的值达成一致，保证不论发生以上任何异常，都不会破坏决议的一致性。</strong></p>
 <h1 id="Paxos解决的问题"><a href="#Paxos解决的问题" class="headerlink" title="Paxos解决的问题"></a>Paxos解决的问题</h1><p>我们先把Paxos放在一边，把视野放大到分布式环境中如何解决冗余副本上数据一致性的问题。<br><img src="/img/serilied-consistency.png" alt="操作序列" title="操作序列"></p>
 <p>上图中，C1是一个客户端，N1、N2、N3是分布式部署的三个服务器，初始状态下N1、N2、N3三个服务器中某个数据的状态都是S0。当客户端要向服务器请求处理操作序列：op1op2op3时（op表示operation）（这里把客户端的写操作简化成向所有服务器发送相同的请操作序列，实际上可能通过Master/Slave模式处理）。如果想保证在处理完客户端的请求之后，N1、N2、N3三个服务器中的数据状态都能从S0变成S1并且一致的话（或者没有执行成功，还是S0状态），就要保证N1、N2、N3在接收并处理操作序列op1op2op3时，严格按照规定的顺序正确执行opi，要么全部执行成功，要不就全部都不执行。</p>

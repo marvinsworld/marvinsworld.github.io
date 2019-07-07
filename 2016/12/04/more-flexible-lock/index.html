@@ -18,8 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。">
 <meta property="og:image" content="http://geyifan.cn/img/lock.png">
-<meta property="og:image" content="http://geyifan.cn/img/qrcode.jpg">
-<meta property="og:updated_time" content="2017-03-10T05:46:14.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:07:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="更加灵活的Lock">
 <meta name="twitter:description" content="Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。">
@@ -113,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-more-flexible-lock" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/lock.png" rel="gallery_cjxoua37g001lgoszd36v3fae">
+        <img src="/img/lock.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -142,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/lock.png" width="300" class="img-topic"><br>Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。<br><a id="more"></a></p>
+        <p>Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。<br><a id="more"></a></p>
 <h2 id="锁目的"><a href="#锁目的" class="headerlink" title="锁目的"></a>锁目的</h2><blockquote>
 <p>A lock is a tool for controlling access to a shared resource by multiple threads. Commonly, a lock provides exclusive access to a shared resource: only one thread at a time can acquire the lock and all access to the shared resource requires that the lock be acquired first.</p>
 </blockquote>

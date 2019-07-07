@@ -18,7 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="使用一个新技术，要了解它的优点和不足，这样才能预见问题的发生，并把风险降到最低。">
 <meta property="og:image" content="http://geyifan.cn/img/warning.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:20:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ZooKeeper怎么玩之二：ZK不是万能的">
 <meta name="twitter:description" content="使用一个新技术，要了解它的优点和不足，这样才能预见问题的发生，并把风险降到最低。">
@@ -112,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-zookeeper2" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/warning.png" rel="gallery_cjxoua3690001goszqlr8avmd">
+        <img src="/img/warning.png" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -141,8 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/warning.png" width="300" class="img-topic"></p>
-<p>使用一个新技术，要了解它的优点和不足，这样才能预见问题的发生，并把风险降到最低。<br><a id="more"></a></p>
+        <p>使用一个新技术，要了解它的优点和不足，这样才能预见问题的发生，并把风险降到最低。<br><a id="more"></a></p>
 <h1 id="ZooKeeper不是万能的。"><a href="#ZooKeeper不是万能的。" class="headerlink" title="ZooKeeper不是万能的。"></a>ZooKeeper不是万能的。</h1><ol>
 <li><p><strong>ZooKeeper不能完成你想要的强一致性</strong>。</p>
 <p> ZK不是强一致性的，不保证任意时刻更新的数据，对于后续操作都是可见的，或者你可以调用sync()方法从客户端保证一致性。为了保证性能，ZK在同步完成超过半数机器后，就可以接受后续的事务请求，那么客户端client就有可能在某些节点上访问的不是最新的数据。</p>

@@ -18,8 +18,7 @@
 <meta property="og:site_name" content="葛一凡">
 <meta property="og:description" content="并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。">
 <meta property="og:image" content="http://geyifan.cn/img/concurrency-vs-parallelism.jpg">
-<meta property="og:image" content="http://geyifan.cn/img/cpu-cache.png">
-<meta property="og:updated_time" content="2016-12-31T02:58:27.000Z">
+<meta property="og:updated_time" content="2019-07-05T05:14:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="并发并行傻傻分不清楚">
 <meta name="twitter:description" content="并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。">
@@ -113,6 +112,16 @@
           <section id="main" style="float:none;"><article id="post-concurrency-vs-parallelism" style="width: 66%; float:left;" class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
+<div class="article-gallery">
+  <div class="article-gallery-photos">
+    
+      <a class="article-gallery-img fancybox" href="/img/concurrency-vs-parallelism.jpg" rel="gallery_cjxoua3740011goszikfk14en">
+        <img src="/img/concurrency-vs-parallelism.jpg" itemprop="image">
+      </a>
+    
+  </div>
+</div>
+
     
       <header class="article-header">
         
@@ -142,7 +151,7 @@
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/img/concurrency-vs-parallelism.jpg" width="600" class="img-topic"><br>并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。<br><a id="more"></a></p>
+        <p>并发（Concurrency）和并行（Parallelism）在多线程中经常被使用到，很多人对这两个概念不是很清楚，经常会混淆。而事实上，并发和并行一直贯穿在计算机的发展过程中，因此有必要在深入研究并发之前，深刻的研究一下并发和并行。<br><a id="more"></a></p>
 <h2 id="从串行到并发再到并行"><a href="#从串行到并发再到并行" class="headerlink" title="从串行到并发再到并行"></a>从串行到并发再到并行</h2><p>最初计算机是单核单任务的，在同一时刻，CPU只能执行一个任务，下一任务必须等待前一个任务完成之后才能执行。举个栗子，你在打游戏时候是不能听歌的，必须把游戏结束，然后才能听歌。这怎么可以！于是多任务处理应运而生，这样就可以一边听歌，一边玩游戏了，用的就是在上文中说到的<a href="http://geyifan.cn/2016/10/10/why-choose-concurrent/#CPU_u4E0A_u4E0B_u6587_u5207_u6362">上下文切换（Context Switch）</a>，就可以进一步地压榨CPU了。</p>
 <p>时代在进步，单个CPU的已经被压榨到极限了，多核CPU在天空出划出一道闪电闪亮登场。多核的到来，先前建立起来的单核世界的并发观瞬间崩塌了。(下文引自“从java视角看并发与并行”，原谅我没有用自己的话描述，因为我的描述是多余的) </p>
 <blockquote>
