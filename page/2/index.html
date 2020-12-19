@@ -106,6 +106,128 @@
         
           <section id="main">
   
+    <article id="post-btrace-manual"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2016/12/14/btrace-manual/">Btrace入门</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2016/12/14/btrace-manual/" class="article-date">
+	  <time datetime="2016-12-14T06:23:04.000Z" itemprop="datePublished">十二月 14, 2016</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/实战性能优化/">实战性能优化</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+          <div class="entry-thumbnail">
+            <a href="/2016/12/14/btrace-manual/"><img src="/img/btrace-diagnosis.jpg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
+          <div class="entry-summary">
+          在生产环境中可能经常遇到各种问题，排查定位问题需要当时程序运行的更多信息，如方法参数、返回值、全局变量、堆栈信息等，不可能在开发的时候就把程序中所有的运行细节都打印到日志上，通过的做法是修改代码，增加日志信息的打印，部署到生产环境再观察。但是这种方式的问题很明显：一方面将增大定位问题的成本和周期，对于紧急问题无法做到及时响应；另一方面重新部署后环境可能已被破坏，很难重新问题的场景。
+
+        
+          <p class="article-more-link">
+            <a href="/2016/12/14/btrace-manual/#more">阅读全文</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/实战性能优化/">实战性能优化</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Btrace/">Btrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/利器/">利器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/堆栈/">堆栈</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
+    <article id="post-more-flexible-lock"  class="article article-type-post" itemscope itemprop="blogPost" >
+  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="thumb" itemprop="name">
+      <a class="article-title" href="/2016/12/04/more-flexible-lock/">更加灵活的Lock</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-meta">
+      
+	<a href="/2016/12/04/more-flexible-lock/" class="article-date">
+	  <time datetime="2016-12-04T14:50:32.000Z" itemprop="datePublished">十二月 4, 2016</time>
+	</a>
+
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+ 
+      
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+          <div class="entry-thumbnail">
+            <a href="/2016/12/04/more-flexible-lock/"><img src="/img/lock.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
+          </div>
+          <div class="entry-summary">
+          Lock是一把相对于更加灵活的锁。灵活之处在于提供了超时、可中断的获取锁方式，把这种自由度交给用户控制；与synchronized不同，Java内置锁就像一个大包大揽的家长，把获取、释放锁都自己处理了。依然保持上文中的观点：如果仅仅是为了实现互斥，而不需要使用基于Lock的附加属性（中断、条件等），推荐优先使用synchronized。
+
+        
+          <p class="article-more-link">
+            <a href="/2016/12/04/more-flexible-lock/#more">阅读全文</a>
+          </p>
+        </div>
+      
+    </div>
+    <footer class="entry-meta entry-footer">
+      
+	<span class="ico-folder"></span>
+    <a class="article-category-link" href="/categories/Java并发演进之路/">Java并发演进之路</a>
+
+      
+  <span class="ico-tags"></span>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/中断/">中断</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/显示锁/">显示锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/灵活/">灵活</a></li></ul>
+
+      
+    </footer>
+    <hr class="entry-footer-hr">
+  </div>
+  
+</article>
+
+<!-- Table of Contents -->
+
+  
     <article id="post-volatile-explain"  class="article article-type-post" itemscope itemprop="blogPost" >
   <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
     
@@ -595,128 +717,6 @@
 <!-- Table of Contents -->
 
   
-    <article id="post-talk-about-transaction"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2016/07/17/talk-about-transaction/">事务隔离级别浅析</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2016/07/17/talk-about-transaction/" class="article-date">
-	  <time datetime="2016-07-17T08:19:25.000Z" itemprop="datePublished">七月 17, 2016</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/数据库/">数据库</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          <div class="entry-thumbnail">
-            <a href="/2016/07/17/talk-about-transaction/"><img src="/img/transaction-lock.png" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
-          </div>
-          <div class="entry-summary">
-          事务是一个高度抽象的概念。事务要解决的问题是如何使多次操作，对外部看起来是一个整体的操作。理想的事务是一把锁，把一个一个的事务按照队列一样排列，不过这样性能我们无法接受，因此引入了引入了MVCC (Multi-Version Concurrency Control) 的概念，MVCC本质是copy-on-write。事务的本质是什么？事务=锁+MVCC
-
-        
-          <p class="article-more-link">
-            <a href="/2016/07/17/talk-about-transaction/#more">阅读全文</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/数据库/">数据库</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/一致性/">一致性</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/事务/">事务</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/锁/">锁</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/隔离级别/">隔离级别</a></li></ul>
-
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
-    <article id="post-basic-paxos"  class="article article-type-post" itemscope itemprop="blogPost" >
-  <div id="articleInner" class="clearfix post-1016 post type-post status-publish format-standard has-post-thumbnail hentry category-template-2 category-uncategorized tag-codex tag-edge-case tag-featured-image tag-image tag-template">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="thumb" itemprop="name">
-      <a class="article-title" href="/2016/06/15/basic-paxos/">Basic Paxos算法</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-meta">
-      
-	<a href="/2016/06/15/basic-paxos/" class="article-date">
-	  <time datetime="2016-06-15T02:03:09.000Z" itemprop="datePublished">六月 15, 2016</time>
-	</a>
-
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
- 
-      
-    </div>
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          <div class="entry-thumbnail">
-            <a href="/2016/06/15/basic-paxos/"><img src="/img/paxos.jpg" class="attachment-thumb-featured size-thumb-featured wp-post-image" alt=""></a>
-          </div>
-          <div class="entry-summary">
-          Paxos算法是一种分布式系统高容错性的一致性算法，为了解决冗余副本间数据一致性的问题。Paxos本身不是很复杂，只是Lamport描述的过于晦涩。从Paxos论文发表到最终被大家认可经历了十多年的时间，如果作者Lamport能够一开始就换一种表达方式的话，或许Paxos在分布式系统中的应用能够更进一步。
-
-        
-          <p class="article-more-link">
-            <a href="/2016/06/15/basic-paxos/#more">阅读全文</a>
-          </p>
-        </div>
-      
-    </div>
-    <footer class="entry-meta entry-footer">
-      
-	<span class="ico-folder"></span>
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
-
-      
-  <span class="ico-tags"></span>
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/一致性/">一致性</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式/">分布式</a></li></ul>
-
-      
-    </footer>
-    <hr class="entry-footer-hr">
-  </div>
-  
-</article>
-
-<!-- Table of Contents -->
-
-  
 
 
   <nav id="page-nav">
@@ -825,6 +825,36 @@
 
             
               <div class="widget-entry-thumbnail">
+                <a href="/2020/12/19/the-breif-of-the-java-concurrency-program/" title=""><img width="50" height="50" src="/img/concurrency/history-wordle.jpg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
+            
+
+              <h6 style="margin: 0;"><a href="/2020/12/19/the-breif-of-the-java-concurrency-program/">NO.001-简说Java并发编程史</a></h6>
+              <span>十二月 19, 2020</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-thumbnail">
+                <a href="/2019/07/10/jvm-loading-class/" title=""><img width="50" height="50" src="/img/loadtime.jpg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
+              </div>
+              <div class="widget-entry-summary">
+            
+
+              <h6 style="margin: 0;"><a href="/2019/07/10/jvm-loading-class/">一个类是如何加载到JVM中的</a></h6>
+              <span>七月 10, 2019</span>
+            </div>
+
+          </li>
+        
+          <li class="clearfix">
+
+            
+              <div class="widget-entry-thumbnail">
                 <a href="/2017/12/30/new-year-2018/" title=""><img width="50" height="50" src="/img/choice.jpg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
               </div>
               <div class="widget-entry-summary">
@@ -881,36 +911,6 @@
 
           </li>
         
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-thumbnail">
-                <a href="/2017/01/21/talk-about-aqs/" title=""><img width="50" height="50" src="/img/aqs-puzzle-piece.png" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
-              </div>
-              <div class="widget-entry-summary">
-            
-
-              <h6 style="margin: 0;"><a href="/2017/01/21/talk-about-aqs/">AQS漫谈</a></h6>
-              <span>一月 21, 2017</span>
-            </div>
-
-          </li>
-        
-          <li class="clearfix">
-
-            
-              <div class="widget-entry-thumbnail">
-                <a href="/2016/12/31/good-bye-2016/" title=""><img width="50" height="50" src="/img/2016-roads.jpg" class="attachment-thumb-small size-thumb-small wp-post-image" alt="preview-16" title=""></a>
-              </div>
-              <div class="widget-entry-summary">
-            
-
-              <h6 style="margin: 0;"><a href="/2016/12/31/good-bye-2016/">2016拾遗</a></h6>
-              <span>十二月 31, 2016</span>
-            </div>
-
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -920,7 +920,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Begin-Python/">Begin Python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java并发演进之路/">Java并发演进之路</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ZooKeeper怎么玩/">ZooKeeper怎么玩</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础/">基础</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/实战性能优化/">实战性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/开源/">开源</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/感悟/">感悟</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Begin-Python/">Begin Python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java并发演进之路/">Java并发演进之路</a><span class="category-list-count">12</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java并发编程思想/">Java并发编程思想</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ZooKeeper怎么玩/">ZooKeeper怎么玩</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/图说JVM/">图说JVM</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/基础/">基础</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/实战性能优化/">实战性能优化</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/开源/">开源</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/感悟/">感悟</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -931,7 +931,7 @@
     <h3 class="widget-title">归档</h3>
 
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/12/">十二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">七月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">三月 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">十月 2016</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">六月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -960,7 +960,7 @@
 
   <div class="clearfix container">
       <div class="site-info">
-	      &copy; 2019 葛一凡 All Rights Reserved.
+	      &copy; 2020 葛一凡 All Rights Reserved.
         
             <span id="busuanzi_container_site_uv">
               本站访客数<span id="busuanzi_value_site_uv"></span>人次  
